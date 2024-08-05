@@ -1,5 +1,7 @@
-- move code here
-- Planet Generator in separate folder
+
+## Prerequisites
+
+Download Planet Generator .zip file from http://hjemmesider.diku.dk/~torbenm/Planet/ and unpack it's contents into `planet` folder.
 
 # PROCESS
 1. Planet Generator + Map Painter workflow

@@ -1,7 +1,36 @@
-import os
 import subprocess
 import time
+import yaml
 from pathlib import Path
+
+
+def load_command_config():
+    command_file = Path('command_config.yaml')
+    if not command_file.exists():
+        raise FileNotFoundError(f"{command_file} not found.")
+
+    with open(command_file, 'r') as file:
+        config = yaml.safe_load(file)
+
+    return config
+
+
+def construct_command(config, sketch_file, output_file):
+    executable = config['executable']
+    arguments = config['arguments']
+    input_redirection = config.get('input_redirection', '')
+
+    # Replace placeholders in arguments
+    formatted_arguments = []
+    for arg in arguments:
+        for key, value in arg.items():
+            formatted_arguments.append(f"{key} {value.format(
+                sketch_file=sketch_file, output_file=output_file)}")
+
+    # Construct the command
+    command = f"{executable} " + " ".join(formatted_arguments) + f" {
+        input_redirection.format(sketch_file=sketch_file)}"
+    return command
 
 
 def run_command(show_output=True):
@@ -11,13 +40,19 @@ def run_command(show_output=True):
     sketch_file = root_dir / 'sketch.map'
     output_file = root_dir / 'preview.bmp'
 
-    # Command to run
-    command = f'planet.exe -s 0.2 -i -0.042 -w 1024 -h 512 -o "{
-        output_file}" -m 1 -p q -C olssonlight.col -z -V -0.069 -v -0.3721 -M 0.1 < "{sketch_file}"'
+    # Load command configuration
+    config = load_command_config()
+
+    # Construct the command to run
+    command = construct_command(config, sketch_file, output_file)
 
     # Determine the output settings
     stdout_setting = None if show_output else subprocess.DEVNULL
     stderr_setting = None if show_output else subprocess.DEVNULL
+
+    # Ensure the working directory exists
+    if not planet_dir.exists():
+        raise FileNotFoundError(f"{planet_dir} directory not found.")
 
     # Change the working directory and run the command
     subprocess.run(command, shell=True, cwd=planet_dir,
@@ -50,11 +85,11 @@ def update_html_with_map_sketch(html_file, sketch_file):
 
 def monitor_file_changes(sketch_file, html_file):
     # Get the initial modification time of the files
-    last_modified_sketch = os.path.getmtime(sketch_file)
+    last_modified_sketch = Path(sketch_file).stat().st_mtime
 
     while True:
         # Check if the sketch file has been modified
-        current_modified_sketch = os.path.getmtime(sketch_file)
+        current_modified_sketch = Path(sketch_file).stat().st_mtime
         if current_modified_sketch != last_modified_sketch:
             print("Sketch file modified. Updating HTML and running command...")
             update_html_with_map_sketch(html_file, sketch_file)
