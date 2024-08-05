@@ -5,6 +5,9 @@ Download Planet Generator .zip file from http://hjemmesider.diku.dk/~torbenm/Pla
 
 # PROCESS
 1. Planet Generator + Map Painter workflow
+   Using VS Code, install Live Preview extension and run `preview-watcher.py`
+   <screenshot>
+      > preview-watcher.py
 2. Generate maps:
    - bathy
    - biome (logarythmic?)
@@ -25,4 +28,4 @@ Download Planet Generator .zip file from http://hjemmesider.diku.dk/~torbenm/Pla
 6. Upscale with Upscayl
 7. Cut into tiles with PhotoShop script
 8. Optimize with pyngyu
-9. Load to repo
+9.  Load to repo

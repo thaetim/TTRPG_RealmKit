@@ -1,0 +1,26 @@
+resolution:
+  - "-w": "7500"
+  - "-h": "3750"
+versions:
+  - name: greyscale linear
+    alterations:
+      - "-C": "greyscale.col"
+  - name: greyscale non-linear
+    alterations:
+      - "-C": "greyscale.col"
+      - "-n": ""
+  - name: "bathymetric"
+    alterations:
+      - "-C": "bathymetric.col"
+  - name: "climate linear"
+    alterations:
+      - "-z": ""
+  - name: "climate non-linear"
+    alterations:
+      - "-z": ""
+      - "-n": ""
+  - name: "terrain linear"
+  - name: "terrain non-linear"
+    alterations:
+      - "-n": ""
+
