@@ -1,0 +1,10 @@
+.\planet.exe -s 0.42069 -w 4096 -h 2048 -i -0.025 -o map1.bmp -n -p M -z -T 0 0 -M 0.1 < sketch.map
+
+.\planet.exe -s 0.42069 -w 7500 -h 3750 -i -0.02 -o map3-bathbump.bmp -m 1.0 -n -z -p M -C bathymetric.col -b -M 0.1 < sketch.map
+
+.\planet.exe -s 23234553 -w 512 -h 256 -i -0.02 -o preview.bmp -m 1.0 -n -z -p M -c -C default.col -b -M 0.1 < sketch.map
+
+.\planet.exe -s 0.9120385 -w 7500 -h 3750 -i 0.073 -o map4-biomes-linear.bmp -m 1.0 -p M -C olssonlight.col -z -V -0.069 -v -0.42 -M 0.1 < sketch.map
+
+map5
+.\planet.exe -s 0.2 -i -0.042 -w 1024 -h 512 -o preview.bmp -m 1 -p q -C olssonlight.col -V -0.069 -v -0.3721 -M 0.1 < sketch.map

@@ -1,0 +1,16 @@
+# Planet Generator not supplied with this repo - download from http://hjemmesider.diku.dk/~torbenm/Planet/
+planet/
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# Python
+.venv/
+
+# Temporary files
+**/*.tmp
+
+# Other
+*.ods
+

@@ -1,0 +1,156 @@
+<!-- use with an online real-time html editor, like https://htmledit.squarefree.com/ -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Map Sketch Colorizer</title>
+    <style>
+        /* Define styles for each character based on legend */
+        .very-deep-water,
+        .deep-water,
+        .water,
+        .shallow-water,
+        .sea-level,
+        .low-land,
+        .land,
+        .high-land,
+        .very-high-land,
+        .numbers {
+            display: inline-block;
+            width: 30px;
+            /* Adjust width as needed */
+            height: 30px;
+            /* Same as width to create square spaces */
+            line-height: 30px;
+            /* Center the character vertically */
+            text-align: center;
+            /* Center the character horizontally */
+            font-size: 20px;
+            /* Adjust font size as needed */
+            box-shadow: inset 0 0 0 0.5px black;
+        }
+
+        .very-deep-water {
+            background-color: black;
+            color: transparent;
+        }
+
+        .deep-water {
+            background-color: darkblue;
+            color: transparent;
+        }
+
+        .water {
+            background-color: dodgerblue;
+            color: transparent;
+        }
+
+        .shallow-water {
+            background-color: aqua;
+            color: transparent;
+        }
+
+        .sea-level {
+            background-color: #add8e6;
+            color: transparent;
+        }
+
+        .low-land {
+            background-color: #9acd32;
+            color: transparent;
+        }
+
+        .land {
+            background-color: green;
+            color: transparent;
+        }
+
+        .high-land {
+            background-color: brown;
+            color: transparent;
+        }
+
+        .very-high-land {
+            background-color: darksalmon;
+            color: transparent;
+        }
+
+        .numbers {
+            font-size: 15px;
+            background-color: lightgray;
+            box-shadow: inset 0 0 0 0.5px black;
+        }
+
+        /* Set font size and family */
+        pre {
+            font-family: monospace;
+        }
+    </style>
+</head>
+
+<body>
+    <!--
+    . very deep water
+    , deep water
+    : water
+    ; shallow water
+    - sea level
+    * low land
+    o land
+    O high land
+    @ very high land
+    -->
+    <pre>
+<span class="numbers">01</span><span class="numbers">02</span><span class="numbers">03</span><span class="numbers">04</span><span class="numbers">05</span><span class="numbers">06</span><span class="numbers">07</span><span class="numbers">08</span><span class="numbers">09</span><span class="numbers">10</span><span class="numbers">11</span><span class="numbers">12</span><span class="numbers">13</span><span class="numbers">14</span><span class="numbers">15</span><span class="numbers">16</span><span class="numbers">17</span><span class="numbers">18</span><span class="numbers">19</span><span class="numbers">20</span><span class="numbers">21</span><span class="numbers">22</span><span class="numbers">23</span><span class="numbers">24</span>
+    </pre>
+    <pre id="map-sketch">
+o;.;-;*-;--;*o--o*;;-;**
+;-:.::::::::;;;.;O**--;O
+-::,,::;-::::::..:::-:::
+,-O-:,:::.,,::-:::::::..
+:::@-::-:O@O@@,:,,:-:::,
+,,,,:;--*;;*o-.-::,*.-:,
+,::-:--:,---*;.::o*;O.::
+:::--;*o--;o*--::**Oo--:
+o-::-*o-,*OO-;-:;:o**-;;
+::-o:-;O,,oO@,;,-*OOo*o,
+.-::::*-*.o*;.:,..;;@oo*
+::::::;-;:...,:.-@o@;*.o
+
+</pre>
+
+    <img id="preview-image" src="preview.bmp" alt="Map Preview" width="720px" />
+
+    <script>
+        // Get the map sketch element
+        var mapSketch = document.getElementById('map-sketch');
+        // Get the text content of the map sketch
+        var mapText = mapSketch.textContent;
+
+        // Define styles for each character based on legend
+        var legendStyles = {
+            '.': 'very-deep-water',
+            ',': 'deep-water',
+            ':': 'water',
+            ';': 'shallow-water',
+            '-': 'sea-level',
+            '*': 'low-land',
+            'o': 'land',
+            'O': 'high-land',
+            '@': 'very-high-land'
+        };
+
+        // Replace each character with a span element with appropriate class
+        var styledText = mapText.split('').map(function (char) {
+            var styleClass = legendStyles[char] || '';
+            return '<span class="' + styleClass + '">' + char + '</span>';
+        }).join('');
+
+        // Replace the text content of the map sketch with styled text
+        mapSketch.innerHTML = styledText;
+    </script>
+</body>
+
+</html>
