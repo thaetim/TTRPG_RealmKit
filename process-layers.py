@@ -3,6 +3,8 @@ from gimpfu import *
 import os
 import sys
 
+DIRPATH_RENDERS = r"H:\DND\Realistic DND World Gen\renders"
+
 
 def load_images_as_layers(image, directory_path):
     """Load all images from the specified directory as separate layers in the GIMP project."""
@@ -56,8 +58,10 @@ def create_erase_layer(image, name, selection_mask):
     return erase_layer
 
 
-def main(directory_path):
+def main():
     """Main function to process images and create erase layers."""
+    directory_path = DIRPATH_RENDERS
+
     # Create a new image in GIMP
     image = pdb.gimp_image_new(7500, 3750, RGB)
 
@@ -102,8 +106,8 @@ register(
     "python-fu-process-maps",
     "Process maps to create land and ocean erase layers",
     "Loads generated images, selects landmasses, and creates erase layers",
-    "Your Name", "Your Name", "2023",
-    "<Image>/Python-Fu/Process Maps",
+    "Your Name", "Your Name", "2024",
+    "<Image>/Filters/Custom/Process Maps",
     "",
     [],
     [],

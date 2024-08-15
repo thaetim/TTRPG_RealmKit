@@ -10,9 +10,9 @@ Download Planet Generator .zip file from http://hjemmesider.diku.dk/~torbenm/Pla
       > preview-watcher.py
 2. Generate maps:
    - bathy
-   - biome (logarythmic?)
-   - realistic both log and linear
-   - grayscale both log and linear
+   - biome
+   - realistic both linear and non-linear
+   - grayscale both linear and non-linear
 3. Process images in GIMP cmd:
    1. Extract ocean-land
       - based on bathy.col elevations ??

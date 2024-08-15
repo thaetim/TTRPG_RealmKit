@@ -36,7 +36,7 @@ def construct_command(base_config, alterations, sketch_file, output_file):
             if value == "":
                 # Add the flag if it's not already present
                 if key not in existing_args:
-                    formatted_arguments.append(f"{key}")
+                    formatted_arguments = [f"{key}"] + formatted_arguments
             else:
                 # Replace the existing argument or add a new one
                 formatted_arguments = [
@@ -47,8 +47,8 @@ def construct_command(base_config, alterations, sketch_file, output_file):
                     formatted_arguments.append(f"{key} {value}")
 
     # Construct the command
-    command = f"{executable} " + " ".join(formatted_arguments) + f" {
-        input_redirection.format(sketch_file=sketch_file)}"
+    command = f"{executable} " + " ".join(formatted_arguments) + \
+        f" {input_redirection.format(sketch_file=sketch_file)}"
     return command
 
 

@@ -12,13 +12,9 @@ versions:
   - name: "bathymetric"
     alterations:
       - "-C": "bathymetric.col"
-  - name: "climate linear"
+  - name: "climate"
     alterations:
       - "-z": ""
-  - name: "climate non-linear"
-    alterations:
-      - "-z": ""
-      - "-n": ""
   - name: "terrain linear"
   - name: "terrain non-linear"
     alterations:
