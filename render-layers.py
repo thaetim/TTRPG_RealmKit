@@ -69,7 +69,7 @@ def execute_layers(base_config, resolution, versions, sketch_file):
             alterations.append(res)
 
         version_name = version.get('name', 'default')
-        output_file = root_dir / 'renders' / f'{version_name}.bmp'
+        output_file = root_dir / 'renders2' / f'{version_name}.bmp'
         command = construct_command(
             base_config, alterations, sketch_file, output_file)
         thread = threading.Thread(target=run_command, args=(command,))

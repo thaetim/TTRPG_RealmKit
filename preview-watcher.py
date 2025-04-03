@@ -24,12 +24,12 @@ def construct_command(config, sketch_file, output_file):
     formatted_arguments = []
     for arg in arguments:
         for key, value in arg.items():
-            formatted_arguments.append(f"{key} {value.format(
-                sketch_file=sketch_file, output_file=output_file)}")
+            formatted_arguments.append(
+                f"{key} {value.format(sketch_file=sketch_file, output_file=output_file)}")
 
     # Construct the command
-    command = f"{executable} " + " ".join(formatted_arguments) + f" {
-        input_redirection.format(sketch_file=sketch_file)}"
+    command = f"{executable} " + " ".join(formatted_arguments) + \
+        f" {input_redirection.format(sketch_file=sketch_file)}"
     return command
 
 

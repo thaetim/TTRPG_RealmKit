@@ -11,4 +11,5 @@ arguments:
   - "-V": "-0.069"
   - "-v": "-0.3721"
   - "-M": "0.1"
+  - "-n": ""
 input_redirection: "< \"{sketch_file}\""
