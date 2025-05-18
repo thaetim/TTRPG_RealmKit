@@ -1,0 +1,163 @@
+import argparse
+import numpy as np
+from PIL import Image
+
+# ===== Biome Definitions =====
+# pgen biomes (RGB to biome name)
+PGEN_COLORS = {
+    (255, 255, 255): 'Ice',
+    (210, 210, 210): 'Tundra',
+    (250, 215, 165): 'Grasslands',
+    (105, 155, 120): 'Taiga / Boreal Forest',
+    (220, 195, 175): 'Desert',
+    (225, 155, 100): 'Savanna',
+    (155, 215, 170): 'Temperate Forest',
+    (170, 195, 200): 'Temperate Rainforest',
+    (185, 150, 160): 'Xeric Shrubland',
+    (130, 190, 25): 'Tropical Dry Forest',
+    (110, 160, 170): 'Tropical Rainforest'
+}
+
+# spacegeo biomes (RGB to biome name)
+SPACEGEO_COLORS = {
+    (151, 169, 173): 'Tundra',  # Ice/Tundra same color
+    (99, 143, 82): 'Taiga / Boreal Forest',
+    (29, 84, 109): 'Temperate Rainforest',
+    (64, 138, 161): 'Temperate Seasonal Forest',
+    (26, 82, 44): 'Tropical Rainforest',
+    (174, 124, 11): 'Shrubland',
+    (144, 126, 46): 'Temperate Grassland',
+    (153, 165, 38): 'Savanna',
+    (193, 113, 54): 'Subtropical Desert'
+}
+
+# = Köppen Mapping =====
+BIOME_TO_KOPPEN = {
+    # Tropical
+    'Tropical Rainforest': 'Af',
+    'Tropical Dry Forest': 'Aw',
+    # Arid
+    'Subtropical Desert': 'BWh',
+    'Desert': 'BWh',
+    'Xeric Shrubland': 'BSh',
+    'Shrubland': 'BSh',
+    'Temperate Grassland': 'BSk',
+    'Savanna': 'Aw',
+    # Temperate
+    'Temperate Forest': 'Cfa',
+    'Temperate Seasonal Forest': 'Cfa',
+    'Temperate Rainforest': 'Cfb',
+    # Boreal/Continental
+    'Taiga / Boreal Forest': 'Dfc',
+    # Polar/Alpine
+    'Tundra': 'ET',
+    'Ice': 'EF'
+}
+
+KOPPEN_COLORS = {
+    'Af': (0, 100, 0),
+    'Aw': (150, 255, 150),
+    'BWh': (255, 200, 0),
+    'BWk': (210, 180, 50),
+    'BSh': (230, 180, 60),
+    'BSk': (210, 210, 100),
+    'Cfa': (100, 200, 100),
+    'Cfb': (50, 150, 50),
+    'Dfc': (50, 100, 150),
+    'ET': (200, 200, 255),
+    'EF': (255, 255, 255)
+}
+
+# ===== Core Functions =====
+def closest_color(pixel, color_map):
+    """Find the closest color in a palette."""
+    r, g, b = pixel
+    min_dist = float('inf')
+    closest = None
+    for color in color_map:
+        cr, cg, cb = color
+        dist = (r - cr)**2 + (g - cg)**2 + (b - cb)**2
+        if dist < min_dist:
+            min_dist = dist
+            closest = color
+    return closest
+
+def get_biome(pixel, color_map):
+    """Map RGB pixel to biome name."""
+    closest = closest_color(pixel, color_map.keys())
+    return color_map[closest]
+
+def classify_koppen(pgen_pixel, spacegeo_pixel, elevation, lat_norm):
+    """Classify a pixel into Köppen climate."""
+    # Get biomes from both maps
+    pgen_biome = get_biome(pgen_pixel, PGEN_COLORS)
+    spacegeo_biome = get_biome(spacegeo_pixel, SPACEGEO_COLORS)
+    
+    # Elevation override (alpine climates)
+    if elevation > 0.8:  # Highest 20% of elevation
+        if pgen_biome in ['Ice', 'Tundra']:
+            return 'EF'
+        return 'ET'
+    
+    # Merge biome priorities
+    final_biome = pgen_biome
+    if spacegeo_biome in ['Temperate Rainforest', 'Tropical Rainforest']:
+        final_biome = spacegeo_biome  # Prefer detailed rainfall data
+    
+    # Köppen base class
+    koppen = BIOME_TO_KOPPEN.get(final_biome, 'BSk')
+    
+    # Latitude adjustments (lat_norm: -1=south pole, 1=north pole)
+    if koppen == 'BWh' and abs(lat_norm) > 0.3:  # Beyond ±30° latitude
+        koppen = 'BWk'  # Cold desert
+    
+    return koppen
+
+def generate_koppen_map(pgen_path, spacegeo_path, heightmap_path, output_path, lat_range=(-90, 90)):
+    """Generate Köppen map from inputs."""
+    # Load images
+    pgen = np.array(Image.open(pgen_path)).astype(np.uint8)
+    spacegeo = np.array(Image.open(spacegeo_path)).astype(np.uint8)
+    heightmap = np.array(Image.open(heightmap_path).convert('L')).astype(float) / 255.0
+    
+    # Validate dimensions
+    if pgen.shape != spacegeo.shape or pgen.shape[:2] != heightmap.shape:
+        raise ValueError("All maps must have identical dimensions!")
+    
+    height, width, _ = pgen.shape
+    koppen_img = np.zeros((height, width, 3), dtype=np.uint8)
+    
+    # Latitude normalization (y-axis based!)
+    lat_min, lat_max = lat_range
+    y_coords = np.linspace(lat_max, lat_min, height)  # y=0 is top (north)
+    lat_norms = (y_coords - (lat_max + lat_min)/2) / (lat_max - lat_min)*2
+    
+    # Process each pixel
+    for y in range(height):
+        for x in range(width):
+            koppen_class = classify_koppen(
+                pgen[y, x], 
+                spacegeo[y, x], 
+                heightmap[y, x],
+                lat_norms[y]
+            )
+            koppen_img[y, x] = KOPPEN_COLORS[koppen_class]
+    
+    Image.fromarray(koppen_img).save(output_path)
+    print(f"Köppen map saved to {output_path}")
+
+# ===== CLI =====
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Generate a Köppen map for a fantasy planet.")
+    parser.add_argument("pgen", help="pgen biome map (RGB)")
+    parser.add_argument("spacegeo", help="spacegeo biome map (RGB)")
+    parser.add_argument("heightmap", help="Heightmap (grayscale)")
+    parser.add_argument("output", help="Output Köppen map")
+    parser.add_argument("--lat", nargs=2, type=float, default=[-90, 90], 
+                      help="Latitude range (south to north)")
+    args = parser.parse_args()
+    
+    generate_koppen_map(
+        args.pgen, args.spacegeo, args.heightmap, 
+        args.output, args.lat
+    )
