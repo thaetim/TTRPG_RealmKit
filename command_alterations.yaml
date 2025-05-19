@@ -1,6 +1,6 @@
 resolution:
-  - "-w": "7500"
-  - "-h": "3750"
+  - "-w": "8192"
+  - "-h": "4096"
 versions:
   - name: greyscale linear
     alterations:
