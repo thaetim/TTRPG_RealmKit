@@ -2,6 +2,7 @@ import subprocess
 import threading
 import yaml
 from pathlib import Path
+from PIL import Image  # Added for image flipping
 
 
 def load_yaml(file_path):
@@ -59,9 +60,22 @@ def run_command(command):
                    stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
 
+def flip_image_vertically(image_path):
+    """Flip an image vertically (top-down mirror)."""
+    try:
+        with Image.open(image_path) as img:
+            flipped_img = img.transpose(Image.FLIP_TOP_BOTTOM)
+            flipped_img.save(image_path)
+            print(f"Flipped image vertically: {image_path}")
+    except Exception as e:
+        print(f"Error flipping image {image_path}: {e}")
+
+
 def execute_layers(base_config, resolution, versions, sketch_file):
     """Execute commands for each version in separate threads."""
     threads = []
+    output_files = []
+    
     for version in versions:
         # Apply resolution settings to alterations
         alterations = version.get('alterations', [])
@@ -69,7 +83,8 @@ def execute_layers(base_config, resolution, versions, sketch_file):
             alterations.append(res)
 
         version_name = version.get('name', 'default')
-        output_file = root_dir / 'renders2' / f'{version_name}.bmp'
+        output_file = root_dir / 'renders' / f'{version_name}.bmp'
+        output_files.append(output_file)
         command = construct_command(
             base_config, alterations, sketch_file, output_file)
         thread = threading.Thread(target=run_command, args=(command,))
@@ -79,6 +94,10 @@ def execute_layers(base_config, resolution, versions, sketch_file):
     # Wait for all threads to complete
     for thread in threads:
         thread.join()
+    
+    # Flip all output images vertically
+    for output_file in output_files:
+        flip_image_vertically(output_file)
 
 
 if __name__ == "__main__":
@@ -92,6 +111,9 @@ if __name__ == "__main__":
     config = load_yaml('command_alterations.yaml')
     resolution = config.get('resolution', [])
     versions = config.get('versions', [])
+
+    # Ensure renders directory exists
+    (root_dir / 'renders').mkdir(exist_ok=True)
 
     # Execute layers
     execute_layers(base_config, resolution, versions, sketch_file)
