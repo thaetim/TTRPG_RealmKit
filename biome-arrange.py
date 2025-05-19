@@ -1,6 +1,8 @@
 import argparse
 import numpy as np
 from PIL import Image
+from tqdm import tqdm
+from pathlib import Path
 
 # ===== Biome Definitions =====
 # pgen biomes (RGB to biome name)
@@ -55,18 +57,40 @@ BIOME_TO_KOPPEN = {
 }
 
 KOPPEN_COLORS = {
-    'Af': (0, 100, 0),
-    'Aw': (150, 255, 150),
-    'BWh': (255, 200, 0),
-    'BWk': (210, 180, 50),
-    'BSh': (230, 180, 60),
-    'BSk': (210, 210, 100),
-    'Cfa': (100, 200, 100),
-    'Cfb': (50, 150, 50),
-    'Dfc': (50, 100, 150),
-    'ET': (200, 200, 255),
-    'EF': (255, 255, 255)
+    'Af': (0, 0, 254),     # Tropical rainforest - Dark blue
+    'Am': (0, 119, 255),   # Tropical monsoon - Medium blue
+    'Aw': (70, 169, 250),   # Tropical savanna - Light blue
+    'As': (121, 186, 236),  # Tropical dry summer - Very light blue
+    'BWh': (254, 0, 0),     # Hot desert - Red
+    'BWk': (254, 150, 149), # Cold desert - Pink
+    'BSh': (245, 163, 1),   # Hot semi-arid - Orange
+    'BSk': (255, 219, 99),  # Cold semi-arid - Light yellow
+    'Csa': (255, 255, 0),   # Hot-summer Mediterranean - Yellow
+    'Csb': (198, 199, 0),   # Warm-summer Mediterranean - Olive
+    'Csc': (150, 150, 0),   # Cold-summer Mediterranean - Dark olive
+    'Cwa': (150, 255, 150), # Monsoon-influenced humid subtropical - Light green
+    'Cwb': (99, 199, 100),  # Subtropical highland - Medium green
+    'Cwc': (50, 150, 50),   # Cold subtropical highland - Dark green
+    'Cfa': (198, 255, 78),  # Humid subtropical - Bright green
+    'Cfb': (102, 255, 51),  # Oceanic - Lime green
+    'Cfc': (51, 199, 1),    # Subpolar oceanic - Forest green
+    'Dsa': (255, 0, 254),   # Hot-summer humid continental - Magenta
+    'Dsb': (198, 0, 199),   # Warm-summer humid continental - Purple
+    'Dsc': (150, 50, 149),  # Cold-summer humid continental - Dark purple
+    'Dsd': (150, 100, 149), # Very cold winter humid continental - Very dark purple
+    'Dwa': (171, 177, 255), # Monsoon-influenced hot-summer humid continental - Light blue-purple
+    'Dwb': (90, 119, 219),  # Monsoon-influenced warm-summer humid continental - Medium blue-purple
+    'Dwc': (76, 81, 181),   # Monsoon-influenced subarctic - Dark blue-purple
+    'Dwd': (50, 0, 135),    # Monsoon-influenced extremely cold subarctic - Very dark blue
+    'Dfa': (0, 255, 255),   # Hot-summer humid continental - Cyan
+    'Dfb': (56, 199, 255),  # Warm-summer humid continental - Sky blue
+    'Dfc': (0, 126, 125),   # Subarctic - Teal
+    'Dfd': (0, 69, 94),     # Extremely cold subarctic - Dark teal
+    'ET': (178, 178, 178),  # Tundra - Light gray
+    'EF': (104, 104, 104),  # Ice cap - Dark gray
+    'Ocean': (0, 0, 139)    # Deep ocean blue (added for water)
 }
+
 
 # ===== Core Functions =====
 def closest_color(pixel, color_map):
@@ -76,7 +100,8 @@ def closest_color(pixel, color_map):
     closest = None
     for color in color_map:
         cr, cg, cb = color
-        dist = (r - cr)**2 + (g - cg)**2 + (b - cb)**2
+        # Convert to float before calculation to prevent overflow
+        dist = float(r - cr)**2 + float(g - cg)**2 + float(b - cb)**2
         if dist < min_dist:
             min_dist = dist
             closest = color
@@ -89,6 +114,10 @@ def get_biome(pixel, color_map):
 
 def classify_koppen(pgen_pixel, spacegeo_pixel, elevation, lat_norm):
     """Classify a pixel into Köppen climate."""
+    # Skip ocean pixels (spacegeo ocean color: RGB(76, 102, 178))
+    if tuple(spacegeo_pixel) == (76, 102, 178):
+        return None
+    
     # Get biomes from both maps
     pgen_biome = get_biome(pgen_pixel, PGEN_COLORS)
     spacegeo_biome = get_biome(spacegeo_pixel, SPACEGEO_COLORS)
@@ -113,16 +142,37 @@ def classify_koppen(pgen_pixel, spacegeo_pixel, elevation, lat_norm):
     
     return koppen
 
+def validate_map_dimensions(pgen, spacegeo, heightmap):
+    """Validate that all maps have compatible dimensions."""
+    print("Validating map dimensions...")
+    if pgen.shape != spacegeo.shape:
+        raise ValueError(f"Dimension mismatch: pgen {pgen.shape} vs spacegeo {spacegeo.shape}")
+    if pgen.shape[:2] != heightmap.shape:
+        raise ValueError(f"Heightmap dimension mismatch: {heightmap.shape} expected {pgen.shape[:2]}")
+    if len(pgen.shape) != 3 or pgen.shape[2] != 3:
+        raise ValueError(f"pgen must be RGB image, got shape {pgen.shape}")
+    if len(spacegeo.shape) != 3 or spacegeo.shape[2] != 3:
+        raise ValueError(f"spacegeo must be RGB image, got shape {spacegeo.shape}")
+    print("✓ All maps have compatible dimensions")
+
 def generate_koppen_map(pgen_path, spacegeo_path, heightmap_path, output_path, lat_range=(-90, 90)):
     """Generate Köppen map from inputs."""
-    # Load images
-    pgen = np.array(Image.open(pgen_path)).astype(np.uint8)
-    spacegeo = np.array(Image.open(spacegeo_path)).astype(np.uint8)
-    heightmap = np.array(Image.open(heightmap_path).convert('L')).astype(float) / 255.0
+    print("\nLoading maps...")
+    # Load images with progress indication
+    with tqdm(desc="Loading pgen map", unit="file") as pbar:
+        pgen = np.array(Image.open(pgen_path)).astype(np.uint8)
+        pbar.update()
+    
+    with tqdm(desc="Loading spacegeo map", unit="file") as pbar:
+        spacegeo = np.array(Image.open(spacegeo_path).convert('RGB')).astype(np.uint8)
+        pbar.update()
+    
+    with tqdm(desc="Loading heightmap", unit="file") as pbar:
+        heightmap = np.array(Image.open(heightmap_path).convert('L')).astype(float) / 255.0
+        pbar.update()
     
     # Validate dimensions
-    if pgen.shape != spacegeo.shape or pgen.shape[:2] != heightmap.shape:
-        raise ValueError("All maps must have identical dimensions!")
+    validate_map_dimensions(pgen, spacegeo, heightmap)
     
     height, width, _ = pgen.shape
     koppen_img = np.zeros((height, width, 3), dtype=np.uint8)
@@ -132,29 +182,57 @@ def generate_koppen_map(pgen_path, spacegeo_path, heightmap_path, output_path, l
     y_coords = np.linspace(lat_max, lat_min, height)  # y=0 is top (north)
     lat_norms = (y_coords - (lat_max + lat_min)/2) / (lat_max - lat_min)*2
     
-    # Process each pixel
-    for y in range(height):
+    print("\nGenerating Köppen map...")
+    # Define ocean color for comparison
+    OCEAN_COLOR = np.array([76, 102, 178], dtype=np.uint8)
+    
+    # Process each pixel with progress bar
+    for y in tqdm(range(height), desc="Processing rows", unit="row"):
         for x in range(width):
+            # Skip ocean pixels
+            if np.array_equal(spacegeo[y, x], OCEAN_COLOR):
+                continue
+                
             koppen_class = classify_koppen(
                 pgen[y, x], 
                 spacegeo[y, x], 
                 heightmap[y, x],
                 lat_norms[y]
             )
-            koppen_img[y, x] = KOPPEN_COLORS[koppen_class]
+            if koppen_class is not None:  # Only assign if not ocean
+                koppen_img[y, x] = KOPPEN_COLORS[koppen_class]
     
-    Image.fromarray(koppen_img).save(output_path)
-    print(f"Köppen map saved to {output_path}")
+    print("\nSaving output...")
+    with tqdm(desc="Saving Köppen map", unit="file") as pbar:
+        Image.fromarray(koppen_img).save(output_path)
+        pbar.update()
+    
+    print(f"\n✓ Köppen map saved to {output_path}")
 
 # ===== CLI =====
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Generate a Köppen map for a fantasy planet.")
-    parser.add_argument("pgen", help="pgen biome map (RGB)")
-    parser.add_argument("spacegeo", help="spacegeo biome map (RGB)")
-    parser.add_argument("heightmap", help="Heightmap (grayscale)")
-    parser.add_argument("output", help="Output Köppen map")
+    # Default file paths
+    MAIN_WDIR = Path(r"D:\DND\Realistic DND World Gen\renders")
+    DEFAULT_PGEN = MAIN_WDIR / "climate.bmp"
+    DEFAULT_SPACEGEO = MAIN_WDIR / "canvas.png"
+    DEFAULT_HEIGHTMAP = MAIN_WDIR / "greyscale linear.bmp"
+    DEFAULT_OUTPUT = MAIN_WDIR / "koppen.bmp"
+
+    parser = argparse.ArgumentParser(
+        description="Generate a Köppen map for a fantasy planet based on inputs from Planet Generator and Space Geometrian.",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter
+    )
+    parser.add_argument("--pgen", default=DEFAULT_PGEN, 
+                       help="pgen biome map (RGB)")
+    parser.add_argument("--spacegeo", default=DEFAULT_SPACEGEO, 
+                       help="spacegeo biome map (RGB)")
+    parser.add_argument("--heightmap", default=DEFAULT_HEIGHTMAP, 
+                       help="Heightmap (grayscale)")
+    parser.add_argument("--output", default=DEFAULT_OUTPUT, 
+                       help="Output Köppen map")
     parser.add_argument("--lat", nargs=2, type=float, default=[-90, 90], 
-                      help="Latitude range (south to north)")
+                       help="Latitude range (south to north)")
+    
     args = parser.parse_args()
     
     generate_koppen_map(
