@@ -3,6 +3,8 @@ import numpy as np
 from PIL import Image
 from tqdm import tqdm
 from pathlib import Path
+from functools import lru_cache
+import numpy as np
 
 # ===== Biome Definitions =====
 # pgen biomes (RGB to biome name)
@@ -93,95 +95,101 @@ KOPPEN_COLORS = {
 
 
 # ===== Core Functions =====
-def closest_color(pixel, color_map):
-    """Find the closest color in a palette."""
-    r, g, b = pixel
-    min_dist = float('inf')
-    closest = None
-    for color in color_map:
-        cr, cg, cb = color
-        # Convert to float before calculation to prevent overflow
-        dist = float(r - cr)**2 + float(g - cg)**2 + float(b - cb)**2
-        if dist < min_dist:
-            min_dist = dist
-            closest = color
-    return closest
+@lru_cache(maxsize=1024)  # Cache up to 1024 unique colors
+def closest_color(pixel_tuple, color_map_name):
+    """
+    Cached version of closest color matching.
+    Uses tuple input and color map name for cache efficiency.
+    """
+    # Select the appropriate color map
+    color_map = PGEN_COLORS if color_map_name == "pgen" else SPACEGEO_COLORS
+    
+    # Convert to numpy arrays for vectorized calculation
+    pixel_array = np.array(pixel_tuple, dtype=np.int16)
+    colors = np.array(list(color_map), dtype=np.int16)
+    
+    # Calculate squared distances
+    diff = colors - pixel_array
+    distances = np.sum(diff**2, axis=1)
+    
+    # Return closest color
+    return list(color_map)[np.argmin(distances)]
 
 def get_biome(pixel, color_map):
-    """Map RGB pixel to biome name."""
-    closest = closest_color(pixel, color_map.keys())
+    """Map RGB pixel to biome name using cached color matching."""
+    # Convert pixel to tuple for hashability (required for caching)
+    pixel_tuple = tuple(pixel)
+    # Determine which color map we're using
+    color_map_name = "pgen" if color_map is PGEN_COLORS else "spacegeo"
+    # Get closest color from cache
+    closest = closest_color(pixel_tuple, color_map_name)
     return color_map[closest]
 
 def classify_koppen(pgen_pixel, spacegeo_pixel, elevation, lat_norm):
-    """Classify a pixel into Köppen climate with improved latitude controls."""
+    """Simplified Köppen classification using only biome maps and elevation."""
     # Skip ocean pixels
     if tuple(spacegeo_pixel) == (76, 102, 178):
         return 'Ocean'
     
-    # Get absolute latitude (0 at equator, 1 at poles)
-    abs_lat = abs(lat_norm)
+    abs_lat = abs(lat_norm)  # 0=equator, 1=pole
     
     # Get biomes from both maps
     pgen_biome = get_biome(pgen_pixel, PGEN_COLORS)
     spacegeo_biome = get_biome(spacegeo_pixel, SPACEGEO_COLORS)
     
-    # Elevation override (alpine climates)
-    if elevation > 0.8:  # Highest 20% of elevation
-        if pgen_biome in ['Ice', 'Tundra']:
-            return 'EF'
-        return 'ET'
+    # ===== Elevation Overrides =====
+    if elevation > 0.8:  # High mountains
+        return 'EF' if (elevation > 0.9 or pgen_biome == 'Ice') else 'ET'
     
-    # Merge biome priorities
-    final_biome = pgen_biome
-    if spacegeo_biome in ['Temperate Rainforest', 'Tropical Rainforest']:
-        final_biome = spacegeo_biome
+    # ===== Climate Zone Determination =====
+    # Tropical Zone (0-20°)
+    if abs_lat < 0.22:
+        if spacegeo_biome == 'Tropical Rainforest':
+            return 'Af'
+        elif spacegeo_biome == 'Tropical Dry Forest':
+            return 'Am' if abs_lat < 0.15 else 'Aw'
+        elif pgen_biome in ['Savanna', 'Grasslands']:
+            return 'Aw'
+        elif pgen_biome == 'Desert':
+            return 'BWh'
     
-    # Köppen base class with latitude adjustments
-    koppen = BIOME_TO_KOPPEN.get(final_biome, 'BSk')
-    
-    # ===== Enhanced Latitude Controls =====
-    # Tropical Zone (0-23.5°)
-    if abs_lat < 0.26:  # ~23.5° normalized
-        if koppen in ['Af', 'Am', 'Aw']:
-            pass  # Keep tropical classifications
-        elif koppen == 'BWh':
-            koppen = 'Aw' if elevation < 0.3 else 'Cwa'  # Transition to savanna/monsoon
-        elif koppen == 'Cfa':
-            koppen = 'Af' if elevation < 0.2 else 'Cwa'  # Force tropical if near equator
-    
-    # Subtropical Zone (23.5-35°)
-    elif 0.26 <= abs_lat < 0.39:
-        if koppen == 'Af':
-            koppen = 'Am'  # Tropical monsoon more likely
-        elif koppen == 'Cfb':
-            koppen = 'Cfa'  # Humid subtropical more likely
+    # Subtropical Zone (20-35°)
+    elif 0.22 <= abs_lat < 0.39:
+        if pgen_biome == 'Xeric Shrubland':
+            return 'BSh'
+        elif spacegeo_biome in ['Temperate Seasonal Forest', 'Temperate Rainforest']:
+            return 'Cfa'
+        elif pgen_biome == 'Grasslands':
+            return 'BSk'
+        elif pgen_biome == 'Desert':
+            return 'BWh' if elevation < 0.5 else 'BWk'
     
     # Temperate Zone (35-55°)
     elif 0.39 <= abs_lat < 0.61:
-        if koppen in ['Af', 'Am']:
-            koppen = 'Cfa'  # Cannot have true tropics here
-        elif koppen == 'Aw':
-            koppen = 'Cwa'  # Transition to monsoon-influenced
-        elif koppen == 'BWh':
-            koppen = 'BSk'  # Desert becomes steppe
+        if spacegeo_biome == 'Temperate Rainforest':
+            return 'Cfb'
+        elif pgen_biome in ['Taiga / Boreal Forest', 'Temperate Forest']:
+            return 'Dfa' if abs_lat < 0.5 else 'Dfb'
+        elif pgen_biome == 'Desert':
+            return 'BWk'
     
     # Boreal Zone (55-66.5°)
     elif 0.61 <= abs_lat < 0.74:
-        if koppen in ['Cfa', 'Cfb']:
-            koppen = 'Dfb'  # Transition to continental
-        elif koppen == 'BSh':
-            koppen = 'Dfc'  # Dry areas become subarctic
+        if pgen_biome == 'Taiga / Boreal Forest':
+            return 'Dfc'
+        elif pgen_biome == 'Tundra':
+            return 'ET'
     
-    # Arctic Zone (>66.5°)
+    # Polar Zone (>66.5°)
     else:
-        if koppen not in ['ET', 'EF', 'Dfc', 'Dfd']:
-            koppen = 'ET'  # Force tundra/ice cap
+        return 'EF' if pgen_biome == 'Ice' else 'ET'
     
-    # Special case for rainforests outside tropics
-    if final_biome == 'Tropical Rainforest' and abs_lat > 0.3:
-        koppen = 'Cfb' if elevation < 0.4 else 'Dfb'
-    
-    return koppen
+    # ===== Fallback Classification =====
+    return BIOME_TO_KOPPEN.get(
+        spacegeo_biome if spacegeo_biome in ['Tropical Rainforest', 'Temperate Rainforest'] 
+        else pgen_biome, 
+        'Cfb'  # Default to oceanic climate
+    )
 
 def validate_map_dimensions(pgen, spacegeo, heightmap):
     """Validate that all maps have compatible dimensions."""
