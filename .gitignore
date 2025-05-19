@@ -1,5 +1,5 @@
 # Planet Generator not supplied with this repo - download from http://hjemmesider.diku.dk/~torbenm/Planet/
-planet/
+planet*/
 
 # VS Code
 .vscode/
@@ -13,4 +13,9 @@ planet/
 
 # Other
 *.ods
-renders/
+renders*/
+
+# Map data
+map*.*
+!map*.html
+preview.bmp
