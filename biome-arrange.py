@@ -40,13 +40,13 @@ BIOME_TO_KOPPEN = {
     'Tropical Dry Forest': 'Aw',
     # Arid
     'Subtropical Desert': 'BWh',
-    'Desert': 'BWh',
+    'Desert': 'BWk',  # Now defaults to cold desert
     'Xeric Shrubland': 'BSh',
-    'Shrubland': 'BSh',
+    'Shrubland': 'BSk',  # More likely to be cold steppe
     'Temperate Grassland': 'BSk',
     'Savanna': 'Aw',
     # Temperate
-    'Temperate Forest': 'Cfa',
+    'Temperate Forest': 'Cfb',  # Default to oceanic
     'Temperate Seasonal Forest': 'Cfa',
     'Temperate Rainforest': 'Cfb',
     # Boreal/Continental
@@ -113,10 +113,13 @@ def get_biome(pixel, color_map):
     return color_map[closest]
 
 def classify_koppen(pgen_pixel, spacegeo_pixel, elevation, lat_norm):
-    """Classify a pixel into Köppen climate."""
-    # Skip ocean pixels (spacegeo ocean color: RGB(76, 102, 178))
+    """Classify a pixel into Köppen climate with improved latitude controls."""
+    # Skip ocean pixels
     if tuple(spacegeo_pixel) == (76, 102, 178):
-        return None
+        return 'Ocean'
+    
+    # Get absolute latitude (0 at equator, 1 at poles)
+    abs_lat = abs(lat_norm)
     
     # Get biomes from both maps
     pgen_biome = get_biome(pgen_pixel, PGEN_COLORS)
@@ -131,14 +134,52 @@ def classify_koppen(pgen_pixel, spacegeo_pixel, elevation, lat_norm):
     # Merge biome priorities
     final_biome = pgen_biome
     if spacegeo_biome in ['Temperate Rainforest', 'Tropical Rainforest']:
-        final_biome = spacegeo_biome  # Prefer detailed rainfall data
+        final_biome = spacegeo_biome
     
-    # Köppen base class
+    # Köppen base class with latitude adjustments
     koppen = BIOME_TO_KOPPEN.get(final_biome, 'BSk')
     
-    # Latitude adjustments (lat_norm: -1=south pole, 1=north pole)
-    if koppen == 'BWh' and abs(lat_norm) > 0.3:  # Beyond ±30° latitude
-        koppen = 'BWk'  # Cold desert
+    # ===== Enhanced Latitude Controls =====
+    # Tropical Zone (0-23.5°)
+    if abs_lat < 0.26:  # ~23.5° normalized
+        if koppen in ['Af', 'Am', 'Aw']:
+            pass  # Keep tropical classifications
+        elif koppen == 'BWh':
+            koppen = 'Aw' if elevation < 0.3 else 'Cwa'  # Transition to savanna/monsoon
+        elif koppen == 'Cfa':
+            koppen = 'Af' if elevation < 0.2 else 'Cwa'  # Force tropical if near equator
+    
+    # Subtropical Zone (23.5-35°)
+    elif 0.26 <= abs_lat < 0.39:
+        if koppen == 'Af':
+            koppen = 'Am'  # Tropical monsoon more likely
+        elif koppen == 'Cfb':
+            koppen = 'Cfa'  # Humid subtropical more likely
+    
+    # Temperate Zone (35-55°)
+    elif 0.39 <= abs_lat < 0.61:
+        if koppen in ['Af', 'Am']:
+            koppen = 'Cfa'  # Cannot have true tropics here
+        elif koppen == 'Aw':
+            koppen = 'Cwa'  # Transition to monsoon-influenced
+        elif koppen == 'BWh':
+            koppen = 'BSk'  # Desert becomes steppe
+    
+    # Boreal Zone (55-66.5°)
+    elif 0.61 <= abs_lat < 0.74:
+        if koppen in ['Cfa', 'Cfb']:
+            koppen = 'Dfb'  # Transition to continental
+        elif koppen == 'BSh':
+            koppen = 'Dfc'  # Dry areas become subarctic
+    
+    # Arctic Zone (>66.5°)
+    else:
+        if koppen not in ['ET', 'EF', 'Dfc', 'Dfd']:
+            koppen = 'ET'  # Force tundra/ice cap
+    
+    # Special case for rainforests outside tropics
+    if final_biome == 'Tropical Rainforest' and abs_lat > 0.3:
+        koppen = 'Cfb' if elevation < 0.4 else 'Dfb'
     
     return koppen
 
