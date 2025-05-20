@@ -6,11 +6,11 @@ from pathlib import Path
 from tqdm import tqdm
 from collections import defaultdict
 import os
-from pathlib import Path
 import re
+from pathlib import Path
 
 # Constants for working directory and basic file paths
-WORKING_DIR = Path("D:\DND\Realistic DND World Gen\earth")
+WORKING_DIR = Path("D:/DND/Realistic DND World Gen/earth")  # Proper forward slashes to avoid escape sequence issues
 FPATH_KOPPEN = WORKING_DIR / "Koppen-Geiger_Map_v2_World_1991–2020.svg.png"
 FPATH_ELEVATION = WORKING_DIR / "srtm_ramp2.world.5400x2700.jpg"
 FPATH_OUTPUT = WORKING_DIR / "climate_palettes.json"
@@ -89,82 +89,157 @@ MONTH_MAPPING = {
     'dec': 'December'
 }
 
-def color_distance(c1, c2):
-    """Calculate Euclidean distance between two RGB colors"""
-    return np.sqrt(sum((a - b) ** 2 for a, b in zip(c1, c2)))
-
-def find_koppen_zones(koppen_map, tolerance=15):
-    """
-    Find pixels that clearly belong to specific Koppen-Geiger zones.
-    Avoids black boundaries by requiring a minimum distance from black.
+def calibrate_koppen_colors(koppen_map, sample_points=10000):
+    """Helper function to find actual colors in your map"""
+    height, width = koppen_map.shape[:2]
+    unique_colors = {}
     
-    Parameters:
-    -----------
-    koppen_map : numpy array
-        RGB image array of the Koppen-Geiger map
-    tolerance : int
-        Color tolerance for matching zone colors
+    print("Sampling colors from map for calibration...")
+    for _ in range(sample_points):
+        y = np.random.randint(0, height)
+        x = np.random.randint(0, width)
+        color = tuple(koppen_map[y, x][:3])
         
-    Returns:
-    --------
-    dict: Dictionary mapping Koppen zone codes to lists of (x, y) coordinates
-    """
+        # Skip black boundaries
+        if np.linalg.norm(np.array(color) - np.array([0, 0, 0])) < 10:
+            continue
+            
+        if color not in unique_colors:
+            unique_colors[color] = 0
+        unique_colors[color] += 1
+    
+    # Sort by frequency
+    sorted_colors = sorted(unique_colors.items(), key=lambda x: -x[1])
+    
+    print("\nMost common non-boundary colors in your map:")
+    for color, count in sorted_colors[:20]:  # Top 20 colors
+        print(f"RGB {color}: {count} pixels (hex: #{color[0]:02x}{color[1]:02x}{color[2]:02x})")
+    
+    return sorted_colors
+
+def color_distance(c1, c2):
+    """Calculate perceptual color distance with better weighting"""
+    # Convert to numpy arrays if they aren't already
+    c1 = np.array(c1)
+    c2 = np.array(c2)
+    
+    # Calculate channel differences
+    dr = c1[0] - c2[0]
+    dg = c1[1] - c2[1]
+    db = c1[2] - c2[2]
+    
+    # Weighted distance - more sensitive to hue than brightness
+    return np.sqrt(
+        2 * dr**2 +  # Red is important for climate zones
+        4 * dg**2 +  # Green is very important for vegetation
+        3 * db**2    # Blue is somewhat important
+    )
+
+def find_koppen_zones(koppen_map, tolerance=4):
+    """Improved zone detection that handles interior pixels better"""
     print("Finding Koppen-Geiger zones in map...")
     height, width = koppen_map.shape[:2]
     
     # Create a reverse lookup from RGB to Koppen code
-    # Using tuple(map(int, color)) to ensure lookup works correctly
     rgb_to_koppen = {tuple(map(int, color)): code for code, color in KOPPEN_COLORS.items()}
     
-    # Dictionary to store pixel positions for each zone
     zone_pixels = defaultdict(list)
-    
-    # Define colors to avoid
     black = (0, 0, 0)  # Boundary color
-    white = (255, 255, 255)  # Ocean color
     
-    # Minimum distance from black (boundary) and white (ocean)
-    min_distance_from_boundary = 15
-    min_distance_from_ocean = 15
+    # Pre-calculate all target colors as numpy arrays
+    target_colors = [(np.array(color), code) for code, color in KOPPEN_COLORS.items()]
+
+    # Define colors to EXCLUDE (oceans, boundaries, etc.)
+    exclude_colors = {
+        (0, 0, 0),        # Black boundaries
+        (255, 255, 255),  # White oceans
+        (102, 102, 102)   # Grey areas
+    }
     
     with tqdm(total=height*width) as pbar:
         for y in range(height):
             for x in range(width):
-                pixel = tuple(map(int, koppen_map[y, x]))
+                pixel = tuple(koppen_map[y, x][:3])
                 
-                # Skip if pixel is too close to black (boundary) or white (ocean)
-                if (color_distance(pixel, black) < min_distance_from_boundary or
-                    color_distance(pixel, white) < min_distance_from_ocean):
+                # Skip excluded colors
+                if pixel in exclude_colors:
                     pbar.update(1)
                     continue
                 
-                # Find closest Koppen zone color
+                # Find closest matching zone
                 min_dist = float('inf')
                 closest_zone = None
                 
-                for koppen_color, zone_code in rgb_to_koppen.items():
-                    dist = color_distance(pixel, koppen_color)
+                for zone_code, zone_color in KOPPEN_COLORS.items():
+                    dist = color_distance(pixel, zone_color)
                     if dist < min_dist and dist < tolerance:
                         min_dist = dist
                         closest_zone = zone_code
                 
-                # If a zone was found with sufficient confidence
                 if closest_zone:
                     zone_pixels[closest_zone].append((x, y))
                 
                 pbar.update(1)
     
-    # Filter out zones with too few pixels (might be noise)
-    min_pixels = 10
+    # Filter out zones with too few pixels
+    min_pixels = 50  # Increased minimum pixels
     filtered_zones = {zone: pixels for zone, pixels in zone_pixels.items() 
                      if len(pixels) >= min_pixels}
     
-    # Print statistics
-    print(f"Found {len(filtered_zones)} valid Koppen-Geiger zones:")
-    for zone, pixels in filtered_zones.items():
+    print("\nZone detection results:")
+    for zone, pixels in sorted(filtered_zones.items()):
         print(f"  {zone}: {len(pixels)} pixels")
     
     return filtered_zones
+
+def debug_visualize_zones(koppen_map, zone_pixels, output_path="zone_debug.png"):
+    """Improved debug visualization"""
+    debug_img = koppen_map.copy()
+    
+    # Create zone color mapping
+    zone_colors = KOPPEN_COLORS
+    
+    # Draw detected zones
+    for zone, pixels in zone_pixels.items():
+        color = zone_colors.get(zone, (255, 255, 0))  # Yellow for unknown
+        for x, y in pixels:
+            debug_img[y, x, :3] = color
+    
+    # Save with original and debug side-by-side
+    comparison = Image.new('RGB', (koppen_map.shape[1]*2, koppen_map.shape[0]))
+    comparison.paste(Image.fromarray(koppen_map), (0, 0))
+    comparison.paste(Image.fromarray(debug_img), (koppen_map.shape[1], 0))
+    comparison.save(output_path)
+    print(f"Saved comparison visualization to {output_path}")
+
+def debug_visualize_zones1(koppen_map, zone_pixels, output_path="debug_zones.png"):
+    """Create a visualization of detected zones for debugging."""
+    # Create a copy of the original image
+    if koppen_map.shape[2] == 4:  # If RGBA
+        debug_img = koppen_map.copy()
+        # We'll modify only the RGB channels, keeping original alpha
+    else:  # If RGB
+        debug_img = koppen_map.copy()
+    
+    # Assign a unique color to each detected zone
+    zone_colors = {}
+    for i, zone in enumerate(zone_pixels.keys()):
+        # Generate distinct colors (as RGB)
+        hue = (i * 30) % 180 + 50  # Vary hue but keep it visible
+        zone_colors[zone] = (hue, 200, 200)
+    
+    # Mark detected pixels
+    for zone, pixels in zone_pixels.items():
+        color = zone_colors[zone]
+        for x, y in pixels:
+            if debug_img.shape[2] == 4:  # RGBA
+                debug_img[y, x, :3] = color  # Only modify RGB channels
+            else:  # RGB
+                debug_img[y, x] = color
+    
+    # Save the debug image
+    Image.fromarray(debug_img).save(output_path)
+    print(f"Debug visualization saved to {output_path}")
 
 def resize_map(src_map, target_size):
     """
@@ -421,6 +496,13 @@ def generate_palette_visualization(colors_data, output_folder):
         Image.fromarray(result_img).save(output_folder / f"{month}_palette.png")
         print(f"Saved visualization for {month} to {output_folder / f'{month}_palette.png'}")
 
+# Path serializer function
+def path_to_str(obj):
+    """Convert Path objects to strings for JSON serialization"""
+    if isinstance(obj, Path):
+        return str(obj)
+    raise TypeError(f"Object of type {type(obj)} is not JSON serializable")
+
 def main():
     parser = argparse.ArgumentParser(
         description="Extract seasonal color palettes for Köppen-Geiger climate zones",
@@ -428,11 +510,11 @@ def main():
     )
     
     parser.add_argument("--koppen-map", type=str,
-                       default=FPATH_KOPPEN,
+                       default=str(FPATH_KOPPEN),  # Convert Path to string
                        help="Path to Köppen-Geiger climate zone map (PNG format)")
     
     parser.add_argument("--elevation-map", type=str,
-                       default=FPATH_ELEVATION,
+                       default=str(FPATH_ELEVATION),  # Convert Path to string
                        help="Path to elevation map (grayscale JPG/PNG format)")
     
     parser.add_argument("--monthly-maps", nargs='+', type=str,
@@ -440,7 +522,7 @@ def main():
                        help="Paths to monthly Earth maps (format: month:path, e.g., jan:earth_jan.jpg)")
     
     parser.add_argument("--output-json", type=str,
-                       default=FPATH_OUTPUT,
+                       default=str(FPATH_OUTPUT),  # Convert Path to string
                        help="Path to save the color palette JSON file")
     
     parser.add_argument("--output-viz", type=str, default=None,
@@ -459,6 +541,26 @@ def main():
     koppen_map = np.array(Image.open(args.koppen_map))
     koppen_height, koppen_width = koppen_map.shape[:2]
     print(f"Köppen map dimensions: {koppen_width}x{koppen_height}")
+    # Calibrate
+    calibrate_koppen_colors(koppen_map)
+    print("Checking calibrated sample pixel values...")
+    sample_pixels = [
+        koppen_map[100, 100],  # Sample from top-left quadrant
+        koppen_map[100, koppen_width//2],  # Sample from top-center
+        koppen_map[koppen_height//2, koppen_width//2],  # Sample from center
+        koppen_map[-100, -100]  # Sample from bottom-right quadrant
+    ]
+    print("Sample pixel values:", sample_pixels)
+    print("\nActual colors in your map (sampling 10,000 points):")
+    sample_colors = defaultdict(int)
+    for _ in range(10000):
+        y, x = np.random.randint(0, koppen_map.shape[0]), np.random.randint(0, koppen_map.shape[1])
+        color = tuple(koppen_map[y,x][:3])
+        if color != (0,0,0):  # Ignore black boundaries
+            sample_colors[color] += 1
+    print("Top 10 most common interior colors:")
+    for color, count in sorted(sample_colors.items(), key=lambda x: -x[1])[:10]:
+        print(f"RGB{color}: {count} pixels (hex: #{color[0]:02x}{color[1]:02x}{color[2]:02x})")
     
     # Load elevation map
     print(f"Loading elevation map from {args.elevation_map}")
@@ -506,6 +608,7 @@ def main():
     
     # Find Koppen-Geiger zones
     zone_pixels = find_koppen_zones(koppen_map, tolerance=args.tolerance)
+    debug_visualize_zones(koppen_map, zone_pixels, "zone_detection_debug.png")
     
     # Extract colors from monthly maps
     colors_data = extract_seasonal_colors(
@@ -535,7 +638,7 @@ def main():
     # Save to JSON file
     output_path = Path(args.output_json)
     with open(output_path, 'w') as f:
-        json.dump(output_data, f, indent=2)
+        json.dump(output_data, f, indent=2, default=path_to_str)
     
     print(f"\nSaved color palette data to {output_path}")
     
