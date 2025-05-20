@@ -6,93 +6,7 @@ from pathlib import Path
 from functools import lru_cache
 import numpy as np
 
-# ===== Biome Definitions =====
-# pgen biomes (RGB to biome name)
-PGEN_COLORS = {
-    (255, 255, 255): 'Ice',
-    (210, 210, 210): 'Tundra',
-    (250, 215, 165): 'Grasslands',
-    (105, 155, 120): 'Taiga / Boreal Forest',
-    (220, 195, 175): 'Desert',
-    (225, 155, 100): 'Savanna',
-    (155, 215, 170): 'Temperate Forest',
-    (170, 195, 200): 'Temperate Rainforest',
-    (185, 150, 160): 'Xeric Shrubland',
-    (130, 190, 25): 'Tropical Dry Forest',
-    (110, 160, 170): 'Tropical Rainforest'
-}
-
-# spacegeo biomes (RGB to biome name)
-SPACEGEO_COLORS = {
-    (151, 169, 173): 'Tundra',  # Ice/Tundra same color
-    (99, 143, 82): 'Taiga / Boreal Forest',
-    (29, 84, 109): 'Temperate Rainforest',
-    (64, 138, 161): 'Temperate Seasonal Forest',
-    (26, 82, 44): 'Tropical Rainforest',
-    (174, 124, 11): 'Shrubland',
-    (144, 126, 46): 'Temperate Grassland',
-    (153, 165, 38): 'Savanna',
-    (193, 113, 54): 'Subtropical Desert'
-}
-
-# = Köppen Mapping =====
-BIOME_TO_KOPPEN = {
-    # Tropical
-    'Tropical Rainforest': 'Af',
-    'Tropical Dry Forest': 'Aw',
-    # Arid
-    'Subtropical Desert': 'BWh',
-    'Desert': 'BWk',  # Now defaults to cold desert
-    'Xeric Shrubland': 'BSh',
-    'Shrubland': 'BSk',  # More likely to be cold steppe
-    'Temperate Grassland': 'BSk',
-    'Savanna': 'Aw',
-    # Temperate
-    'Temperate Forest': 'Cfb',  # Default to oceanic
-    'Temperate Seasonal Forest': 'Cfa',
-    'Temperate Rainforest': 'Cfb',
-    # Boreal/Continental
-    'Taiga / Boreal Forest': 'Dfc',
-    # Polar/Alpine
-    'Tundra': 'ET',
-    'Ice': 'EF'
-}
-
-KOPPEN_COLORS = {
-    'Af': (0, 0, 254),     # Tropical rainforest - Dark blue
-    'Am': (0, 119, 255),   # Tropical monsoon - Medium blue
-    'Aw': (70, 169, 250),   # Tropical savanna - Light blue
-    'As': (121, 186, 236),  # Tropical dry summer - Very light blue
-    'BWh': (254, 0, 0),     # Hot desert - Red
-    'BWk': (254, 150, 149), # Cold desert - Pink
-    'BSh': (245, 163, 1),   # Hot semi-arid - Orange
-    'BSk': (255, 219, 99),  # Cold semi-arid - Light yellow
-    'Csa': (255, 255, 0),   # Hot-summer Mediterranean - Yellow
-    'Csb': (198, 199, 0),   # Warm-summer Mediterranean - Olive
-    'Csc': (150, 150, 0),   # Cold-summer Mediterranean - Dark olive
-    'Cwa': (150, 255, 150), # Monsoon-influenced humid subtropical - Light green
-    'Cwb': (99, 199, 100),  # Subtropical highland - Medium green
-    'Cwc': (50, 150, 50),   # Cold subtropical highland - Dark green
-    'Cfa': (198, 255, 78),  # Humid subtropical - Bright green
-    'Cfb': (102, 255, 51),  # Oceanic - Lime green
-    'Cfc': (51, 199, 1),    # Subpolar oceanic - Forest green
-    'Dsa': (255, 0, 254),   # Hot-summer humid continental - Magenta
-    'Dsb': (198, 0, 199),   # Warm-summer humid continental - Purple
-    'Dsc': (150, 50, 149),  # Cold-summer humid continental - Dark purple
-    'Dsd': (150, 100, 149), # Very cold winter humid continental - Very dark purple
-    'Dwa': (171, 177, 255), # Monsoon-influenced hot-summer humid continental - Light blue-purple
-    'Dwb': (90, 119, 219),  # Monsoon-influenced warm-summer humid continental - Medium blue-purple
-    'Dwc': (76, 81, 181),   # Monsoon-influenced subarctic - Dark blue-purple
-    'Dwd': (50, 0, 135),    # Monsoon-influenced extremely cold subarctic - Very dark blue
-    'Dfa': (0, 255, 255),   # Hot-summer humid continental - Cyan
-    'Dfb': (56, 199, 255),  # Warm-summer humid continental - Sky blue
-    'Dfc': (0, 126, 125),   # Subarctic - Teal
-    'Dfd': (0, 69, 94),     # Extremely cold subarctic - Dark teal
-    'ET': (178, 178, 178),  # Tundra - Light gray
-    'EF': (104, 104, 104),  # Ice cap - Dark gray
-    'Ocean': (0, 0, 139)    # Deep ocean blue (added for water)
-}
-
+from biome_arrange_constants import *
 
 # ===== Core Functions =====
 @lru_cache(maxsize=1024)  # Cache up to 1024 unique colors
@@ -887,11 +801,10 @@ def generate_koppen_map(pgen_path, spacegeo_path, heightmap_path, output_path, l
         pbar.update()
     
     print(f"\n✓ Köppen map saved to {output_path}")
-
 def analyze_biome_combinations(pgen_path, spacegeo_path, output_file=None):
     """
     Analyze and report all unique pgen-spacegeo biome combinations in the maps.
-    Optionally saves results to a text file.
+    Optimized to skip ocean pixels more efficiently.
     """
     print("\nLoading maps for biome combination analysis...")
     pgen = np.array(Image.open(pgen_path)).astype(np.uint8)
@@ -902,46 +815,60 @@ def analyze_biome_combinations(pgen_path, spacegeo_path, output_file=None):
         raise ValueError("pgen and spacegeo maps must have same dimensions")
     
     height, width, _ = pgen.shape
-    combinations = set()
+    combinations = {}  # Using dict instead of set for better performance
     biome_counts = {}
     
     print("\nAnalyzing biome combinations...")
-    OCEAN_COLOR = np.array([76, 102, 178], dtype=np.uint8)
+    total_pixels = height * width
+    land_pixels = 0
     
-    for y in tqdm(range(height), desc="Processing rows", unit="row"):
+    # Create a mask for ocean pixels (vectorized)
+    ocean_mask = np.zeros((height, width), dtype=bool)
+    for y in range(height):
         for x in range(width):
-            # Skip ocean pixels
             if np.array_equal(spacegeo[y, x], OCEAN_COLOR):
-                continue
+                ocean_mask[y, x] = True
+    
+    with tqdm(total=total_pixels, desc="Processing pixels") as pbar:
+        for y in range(height):
+            for x in range(width):
+                # Skip ocean pixels using precomputed mask
+                if ocean_mask[y, x]:
+                    pbar.update(1)
+                    continue
+                    
+                # Get biome names
+                pgen_biome = get_biome(pgen[y, x], "pgen")
+                spacegeo_biome = get_biome(spacegeo[y, x], "spacegeo")
                 
-            # Get biome names
-            pgen_biome = get_biome(pgen[y, x], PGEN_COLORS)
-            spacegeo_biome = get_biome(spacegeo[y, x], SPACEGEO_COLORS)
-            
-            # Record combination
-            combo = (pgen_biome, spacegeo_biome)
-            combinations.add(combo)
-            
-            # Count occurrences
-            biome_counts[combo] = biome_counts.get(combo, 0) + 1
+                # Record combination
+                combo = (pgen_biome, spacegeo_biome)
+                combinations[combo] = True
+                
+                # Count occurrences
+                biome_counts[combo] = biome_counts.get(combo, 0) + 1
+                land_pixels += 1
+                
+                pbar.update(1)
     
     # Sort combinations by frequency (descending)
-    sorted_combinations = sorted(combinations, key=lambda x: -biome_counts[x])
+    sorted_combinations = sorted(combinations.keys(), key=lambda x: -biome_counts[x])
     
     # Prepare report
     report_lines = [
         "Unique PGen-SpaceGeo Biome Combinations Analysis",
         "==============================================",
         f"Total unique combinations found: {len(combinations)}",
-        f"Total land pixels analyzed: {sum(biome_counts.values())}",
+        f"Total land pixels analyzed: {land_pixels} (skipped {total_pixels - land_pixels} ocean pixels)",
         "\nCombinations (sorted by frequency):",
-        "PGen Biome\t\tSpaceGeo Biome\t\tCount"
+        "PGen Biome\t\tSpaceGeo Biome\t\tCount\t%Land"
     ]
     
     for combo in sorted_combinations:
         pgen_b, spacegeo_b = combo
         count = biome_counts[combo]
-        report_lines.append(f"{pgen_b.ljust(20)}\t{spacegeo_b.ljust(20)}\t{count}")
+        percentage = (count / land_pixels) * 100
+        report_lines.append(f"{pgen_b.ljust(20)}\t{spacegeo_b.ljust(20)}\t{count}\t{percentage:.1f}%")
     
     report = "\n".join(report_lines)
     print("\n" + report)
@@ -953,26 +880,21 @@ def analyze_biome_combinations(pgen_path, spacegeo_path, output_file=None):
         print(f"\n✓ Analysis saved to {output_file}")
     else:
         print("\nℹ️ No output file specified - results only printed to console")
+    
+    return combinations, biome_counts
 
 def analyze_koppen_distributions(koppen_path, heightmap_path, lat_range=(-90, 90), output_file=None):
     """
     Analyze distributions of Köppen classes by altitude and latitude.
-    Generates statistics and optionally saves to file.
-    
-    Args:
-        koppen_path: Path to generated Köppen map (RGB)
-        heightmap_path: Path to heightmap (grayscale)
-        lat_range: Tuple of (min_lat, max_lat)
-        output_file: Optional path to save results
+    Optimized to skip ocean pixels and use vectorized operations where possible.
     """
     print("\nLoading data for distribution analysis...")
     
     # Load maps
-    with tqdm(desc="Loading Köppen map", unit="file") as pbar:
+    with tqdm(desc="Loading maps", total=2) as pbar:
         koppen_img = np.array(Image.open(koppen_path))
         pbar.update()
-    
-    with tqdm(desc="Loading heightmap", unit="file") as pbar:
+        
         heightmap = np.array(Image.open(heightmap_path).convert('L')) / 255.0
         pbar.update()
     
@@ -981,15 +903,16 @@ def analyze_koppen_distributions(koppen_path, heightmap_path, lat_range=(-90, 90
         raise ValueError("Köppen map and heightmap must have same dimensions")
     
     height, width = heightmap.shape
+    
+    # Use dictionary of numpy arrays for better statistics performance
     stats = {
-        'by_class': {},       # Köppen class statistics
-        'altitude_bins': {},  # Distribution by altitude
-        'latitude_bins': {}   # Distribution by latitude
+        'by_class': {},
+        'altitude_bins': {},
+        'latitude_bins': {}
     }
     
     # Prepare reverse color mapping
-    COLOR_TO_KOPPEN = {v:k for k,v in KOPPEN_COLORS.items()}
-    OCEAN_COLOR = np.array([0, 0, 139], dtype=np.uint8)
+    OCEAN_COLOR_RGB = np.array(KOPPEN_COLORS['Ocean'])
     
     # Latitude bins
     lat_min, lat_max = lat_range
@@ -1001,75 +924,111 @@ def analyze_koppen_distributions(koppen_path, heightmap_path, lat_range=(-90, 90
     
     print("\nAnalyzing distributions...")
     
-    for y in tqdm(range(height), desc="Processing rows", unit="row"):
-        current_lat = y_coords[y]
-        lat_bin = np.digitize(current_lat, LATITUDE_BINS) - 1  # 0-based
-        
+    # Create ocean mask once (vectorized where possible)
+    ocean_mask = np.zeros((height, width), dtype=bool)
+    for y in range(height):
         for x in range(width):
-            # Skip ocean pixels
-            if np.array_equal(koppen_img[y, x], OCEAN_COLOR):
-                continue
+            ocean_mask[y, x] = np.array_equal(koppen_img[y, x], OCEAN_COLOR_RGB)
+    
+    # Initialize data structures for each Köppen class
+    koppen_classes = set()
+    total_land_pixels = 0
+    
+    # First pass: identify all Köppen classes and count land pixels
+    for y in range(height):
+        for x in range(width):
+            if not ocean_mask[y, x]:
+                # Get Köppen class
+                pixel_tuple = tuple(koppen_img[y, x])
+                koppen_class = COLOR_TO_KOPPEN.get(pixel_tuple, 'Unknown')
+                koppen_classes.add(koppen_class)
+                total_land_pixels += 1
+    
+    # Initialize statistics arrays for each Köppen class
+    for koppen_class in koppen_classes:
+        stats['by_class'][koppen_class] = {
+            'count': 0,
+            'elevation_sum': 0,
+            'lat_sum': 0,
+            'min_alt': 1.0,
+            'max_alt': 0.0,
+            'pixels': []  # Store pixels for later analysis
+        }
+    
+    # Process each pixel with progress bar (now with optimized ocean skipping)
+    with tqdm(total=height*width, desc="Processing pixels") as pbar:
+        for y in range(height):
+            current_lat = y_coords[y]
+            lat_bin = np.digitize(current_lat, LATITUDE_BINS) - 1  # 0-based
+            
+            for x in range(width):
+                # Skip ocean pixels using precomputed mask
+                if ocean_mask[y, x]:
+                    pbar.update(1)
+                    continue
+                    
+                # Get Köppen class
+                pixel_tuple = tuple(koppen_img[y, x])
+                koppen_class = COLOR_TO_KOPPEN.get(pixel_tuple, 'Unknown')
                 
-            # Get Köppen class
-            koppen_class = COLOR_TO_KOPPEN.get(tuple(koppen_img[y, x]), 'Unknown')
-            
-            # Get elevation (0-1)
-            elevation = heightmap[y, x]
-            alt_bin = np.digitize(elevation, ALTITUDE_BINS) - 1  # 0-based
-            
-            # Initialize data structures
-            if koppen_class not in stats['by_class']:
-                stats['by_class'][koppen_class] = {
-                    'count': 0,
-                    'elevation_sum': 0,
-                    'lat_sum': 0,
-                    'min_alt': 1,
-                    'max_alt': 0
-                }
-            
-            # Update class statistics
-            stats['by_class'][koppen_class]['count'] += 1
-            stats['by_class'][koppen_class]['elevation_sum'] += elevation
-            stats['by_class'][koppen_class]['lat_sum'] += current_lat
-            stats['by_class'][koppen_class]['min_alt'] = min(
-                stats['by_class'][koppen_class]['min_alt'], elevation)
-            stats['by_class'][koppen_class]['max_alt'] = max(
-                stats['by_class'][koppen_class]['max_alt'], elevation)
-            
-            # Update altitude bin stats
-            if alt_bin not in stats['altitude_bins']:
-                stats['altitude_bins'][alt_bin] = {}
-            stats['altitude_bins'][alt_bin][koppen_class] = (
-                stats['altitude_bins'][alt_bin].get(koppen_class, 0) + 1)
-            
-            # Update latitude bin stats
-            if lat_bin not in stats['latitude_bins']:
-                stats['latitude_bins'][lat_bin] = {}
-            stats['latitude_bins'][lat_bin][koppen_class] = (
-                stats['latitude_bins'][lat_bin].get(koppen_class, 0) + 1)
+                # Get elevation (0-1)
+                elevation = heightmap[y, x]
+                alt_bin = np.digitize(elevation, ALTITUDE_BINS) - 1  # 0-based
+                
+                # Update class statistics
+                stats['by_class'][koppen_class]['count'] += 1
+                stats['by_class'][koppen_class]['elevation_sum'] += elevation
+                stats['by_class'][koppen_class]['lat_sum'] += current_lat
+                stats['by_class'][koppen_class]['min_alt'] = min(
+                    stats['by_class'][koppen_class]['min_alt'], elevation)
+                stats['by_class'][koppen_class]['max_alt'] = max(
+                    stats['by_class'][koppen_class]['max_alt'], elevation)
+                
+                # Add pixel to list for possible later analysis
+                stats['by_class'][koppen_class]['pixels'].append((x, y, elevation, current_lat))
+                
+                # Update altitude bin stats
+                if alt_bin not in stats['altitude_bins']:
+                    stats['altitude_bins'][alt_bin] = {}
+                stats['altitude_bins'][alt_bin][koppen_class] = (
+                    stats['altitude_bins'][alt_bin].get(koppen_class, 0) + 1)
+                
+                # Update latitude bin stats
+                if lat_bin not in stats['latitude_bins']:
+                    stats['latitude_bins'][lat_bin] = {}
+                stats['latitude_bins'][lat_bin][koppen_class] = (
+                    stats['latitude_bins'][lat_bin].get(koppen_class, 0) + 1)
+                
+                pbar.update(1)
     
     # Calculate averages
     for koppen_class in stats['by_class']:
         count = stats['by_class'][koppen_class]['count']
-        stats['by_class'][koppen_class]['mean_alt'] = (
-            stats['by_class'][koppen_class]['elevation_sum'] / count)
-        stats['by_class'][koppen_class]['mean_lat'] = (
-            stats['by_class'][koppen_class]['lat_sum'] / count)
+        if count > 0:
+            stats['by_class'][koppen_class]['mean_alt'] = (
+                stats['by_class'][koppen_class]['elevation_sum'] / count)
+            stats['by_class'][koppen_class]['mean_lat'] = (
+                stats['by_class'][koppen_class]['lat_sum'] / count)
+        else:
+            stats['by_class'][koppen_class]['mean_alt'] = 0
+            stats['by_class'][koppen_class]['mean_lat'] = 0
+        
+        # Remove raw pixel data to save memory after calculations
+        del stats['by_class'][koppen_class]['pixels']
     
     # Generate report
     report_lines = [
         "Köppen Climate Distribution Analysis",
         "=================================",
-        f"Total land pixels analyzed: {sum(c['count'] for c in stats['by_class'].values())}",
+        f"Total land pixels analyzed: {total_land_pixels}",
         "\nOverall Statistics by Climate Class:",
         "Class\tCount\t%Total\tMeanAlt\tMinAlt\tMaxAlt\tMeanLat"
     ]
     
-    total_pixels = sum(c['count'] for c in stats['by_class'].values())
     for koppen_class in sorted(stats['by_class'], 
                              key=lambda x: -stats['by_class'][x]['count']):
         data = stats['by_class'][koppen_class]
-        pct = (data['count'] / total_pixels) * 100
+        pct = (data['count'] / total_land_pixels) * 100
         report_lines.append(
             f"{koppen_class}\t{data['count']}\t{pct:.1f}%\t"
             f"{data['mean_alt']:.3f}\t{data['min_alt']:.3f}\t"
