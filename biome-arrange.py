@@ -126,6 +126,174 @@ def get_biome(pixel, color_map):
     return color_map[closest]
 
 def classify_koppen(pgen_pixel, spacegeo_pixel, elevation, lat_norm):
+    """Final Köppen classification with polar region fixes and better climate distribution."""
+    # Skip ocean pixels - using 0-255 heightmap values
+    if (tuple(spacegeo_pixel) == (76, 102, 178) or 
+        tuple(pgen_pixel) == (76, 102, 178) or
+        elevation < 127):  # Land-ocean division at 127
+        return 'Ocean'
+    
+    abs_lat = abs(lat_norm * 90)  # Convert to degrees
+    norm_elev = elevation / 255    # Normalize elevation to 0-1
+    
+    # Get biomes from both maps
+    pgen_biome = get_biome(pgen_pixel, PGEN_COLORS)
+    spacegeo_biome = get_biome(spacegeo_pixel, SPACEGEO_COLORS)
+    
+    # ===== Polar Region Fixes =====
+    # Adjust latitude weighting for equirectangular projection
+    effective_lat = abs_lat * np.cos(np.radians(abs_lat))
+    
+    # ===== Elevation Overrides =====
+    if norm_elev > 0.8:  # High mountains
+        if norm_elev > 0.9 or pgen_biome == 'Ice':
+            return 'EF'
+        return 'ET'
+    
+    # ===== Climate Zone Determination =====
+    # Tropical Zone (0-23.5°)
+    if effective_lat < 23.5:
+        if spacegeo_biome == 'Tropical Rainforest':
+            return 'Af'
+        elif pgen_biome == 'Tropical Dry Forest':
+            return 'Am' if norm_elev < 0.3 else 'Aw'
+        elif spacegeo_biome == 'Subtropical Desert' or pgen_biome == 'Desert':
+            return 'BWh' if norm_elev < 0.6 else 'BWk'
+        elif pgen_biome == 'Savanna':
+            return 'Aw'
+    
+    # Subtropical Zone (23.5-35°)
+    elif 23.5 <= effective_lat < 35:
+        if pgen_biome == 'Xeric Shrubland':
+            return 'BSh' if norm_elev < 0.5 else 'BSk'
+        elif spacegeo_biome == 'Temperate Seasonal Forest':
+            return 'Cfa'
+        elif pgen_biome == 'Grasslands':
+            return 'BSk'
+    
+    # Temperate Zone (35-55°)
+    elif 35 <= effective_lat < 55:
+        if spacegeo_biome == 'Temperate Rainforest':
+            return 'Cfb'
+        elif pgen_biome == 'Temperate Forest':
+            # More humid continental (Dfb) in continental interiors
+            return 'Dfb' if (norm_elev > 0.5 or 
+                           (effective_lat > 45 and norm_elev > 0.3)) else 'Cfb'
+        elif pgen_biome == 'Taiga / Boreal Forest':
+            return 'Dfc'
+        elif pgen_biome == 'Desert':
+            return 'BWk'
+    
+    # Boreal/Arctic Zone (>55°)
+    else:
+        # Stronger transition to polar climates
+        if effective_lat > 70:  # High Arctic
+            return 'EF' if pgen_biome == 'Ice' else 'ET'
+        elif effective_lat > 60:  # Low Arctic
+            if pgen_biome in ['Taiga / Boreal Forest', 'Temperate Forest']:
+                return 'Dfc'
+            return 'ET'
+        else:  # Boreal (55-60°)
+            return 'Dfc' if pgen_biome in ['Taiga / Boreal Forest', 'Temperate Forest'] else 'ET'
+    
+    # ===== Fallback Rules =====
+    # Priority to spacegeo for specific biomes
+    if spacegeo_biome in SPACEGEO_COLORS:
+        if spacegeo_biome in BIOME_TO_KOPPEN:
+            return BIOME_TO_KOPPEN[spacegeo_biome]
+    
+    # Default to pgen biome mapping
+    return BIOME_TO_KOPPEN.get(pgen_biome, 'BSk')  # Default to cold steppe
+
+def classify_koppen7(pgen_pixel, spacegeo_pixel, elevation, lat_norm):
+    """Improved Köppen classification with hot desert rules incorporated."""
+    # Skip ocean pixels - more robust detection
+    if (tuple(spacegeo_pixel) == (76, 102, 178) or 
+        tuple(pgen_pixel) == (76, 102, 178) or
+        elevation < 127/255):  # Land-ocean division at ~127
+        return 'Ocean'
+    
+    abs_lat = abs(lat_norm * 90)  # Convert to degrees
+    norm_elev = elevation / 255  # Normalize elevation to 0-1
+    
+    # Get biomes from both maps
+    pgen_biome = get_biome(pgen_pixel, PGEN_COLORS)
+    spacegeo_biome = get_biome(spacegeo_pixel, SPACEGEO_COLORS)
+    
+    # ===== Elevation Overrides =====
+    if norm_elev > 0.8:  # High mountains
+        return 'EF' if (norm_elev > 0.9 or pgen_biome == 'Ice') else 'ET'
+    
+    # ===== Hot Desert Rules =====
+    if (spacegeo_biome == 'Subtropical Desert' or 
+        (pgen_biome == 'Desert' and abs_lat < 35)):
+        # Hot deserts in tropics/subtropics
+        if norm_elev < 0.6:
+            return 'BWh'
+        # High elevation deserts become cold
+        return 'BWk'
+    
+    # ===== Fix Problematic Combinations =====
+    # 1. Tropical Dry Forest + Tundra
+    if (pgen_biome == 'Tropical Dry Forest' and 
+        spacegeo_biome == 'Tundra'):
+        return 'Aw' if abs_lat < 15 else 'Cwa'
+    
+    # 2. Temperate Forest + Tundra (arctic transition)
+    if (pgen_biome == 'Temperate Forest' and 
+        spacegeo_biome == 'Tundra'):
+        return 'ET' if abs_lat > 60 else 'Dfc'
+    
+    # ===== Climate Zone Determination =====
+    # Tropical Zone (0-23.5°)
+    if abs_lat < 23.5:
+        if spacegeo_biome == 'Tropical Rainforest':
+            return 'Af'
+        elif pgen_biome == 'Tropical Dry Forest':
+            return 'Am' if norm_elev < 0.3 else 'Aw'
+        elif pgen_biome == 'Savanna':
+            return 'Aw'
+    
+    # Subtropical Zone (23.5-35°)
+    elif 23.5 <= abs_lat < 35:
+        if pgen_biome == 'Xeric Shrubland':
+            return 'BSh' if norm_elev < 0.5 else 'BSk'
+        elif spacegeo_biome == 'Temperate Seasonal Forest':
+            return 'Cfa'
+        elif pgen_biome == 'Grasslands':
+            return 'BSk'
+    
+    # Temperate Zone (35-55°)
+    elif 35 <= abs_lat < 55:
+        if spacegeo_biome == 'Temperate Rainforest':
+            return 'Cfb'
+        elif pgen_biome == 'Temperate Forest':
+            return 'Cfb' if norm_elev < 0.6 else 'Dfb'
+        elif pgen_biome == 'Taiga / Boreal Forest':
+            return 'Dfc'
+        elif pgen_biome == 'Desert':  # Temperate deserts are cold
+            return 'BWk'
+    
+    # Boreal Zone (55-66.5°)
+    elif 55 <= abs_lat < 66.5:
+        if pgen_biome == 'Taiga / Boreal Forest':
+            return 'Dfc'
+        elif pgen_biome == 'Tundra':
+            return 'ET'
+    
+    # Arctic Zone (>66.5°)
+    else:
+        return 'EF' if pgen_biome == 'Ice' else 'ET'
+    
+    # ===== Fallback Rules =====
+    # Use spacegeo biomes when more specific
+    if spacegeo_biome in BIOME_TO_KOPPEN:
+        return BIOME_TO_KOPPEN[spacegeo_biome]
+    
+    # Default to pgen biome mapping
+    return BIOME_TO_KOPPEN.get(pgen_biome, 'Cfb')
+
+def classify_koppen6(pgen_pixel, spacegeo_pixel, elevation, lat_norm):
     """Final refined Köppen classification based on comprehensive analysis."""
     # Convert normalized latitude to degrees
     abs_lat = abs(lat_norm * 90)  # 0° to 90°
@@ -675,7 +843,7 @@ def generate_koppen_map(pgen_path, spacegeo_path, heightmap_path, output_path, l
         pbar.update()
     
     with tqdm(desc="Loading heightmap", unit="file") as pbar:
-        heightmap = np.array(Image.open(heightmap_path).convert('L')).astype(float) / 255.0
+        heightmap = np.array(Image.open(heightmap_path).convert('L')).astype(np.uint8)
         pbar.update()
     
     # Validate dimensions
@@ -700,13 +868,17 @@ def generate_koppen_map(pgen_path, spacegeo_path, heightmap_path, output_path, l
             if np.array_equal(spacegeo[y, x], OCEAN_COLOR):
                 continue
                 
+            # Calculate effective latitude accounting for projection distortion
+            raw_lat = lat_norms[y] * 90
+            effective_lat_norm = raw_lat * np.cos(np.radians(abs(raw_lat))) / 90
+            
             koppen_class = classify_koppen(
                 pgen[y, x], 
                 spacegeo[y, x], 
                 heightmap[y, x],
-                lat_norms[y]
+                effective_lat_norm  # Use adjusted latitude
             )
-            if koppen_class is not None:  # Only assign if not ocean
+            if koppen_class is not None:
                 koppen_img[y, x] = KOPPEN_COLORS[koppen_class]
     
     print("\nSaving output...")
