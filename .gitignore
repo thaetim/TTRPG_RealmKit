@@ -7,6 +7,7 @@ planet*/
 
 # Python
 .venv/
+**/__pycache__/
 
 # Temporary files
 **/*.tmp
@@ -14,8 +15,14 @@ planet*/
 # Other
 *.ods
 renders*/
+debug_results/
+*debug.png
 
 # Map data
 map*.*
 !map*.html
 preview.bmp
+earth/*.png
+earth/*.jpg
+earth/*.jpeg
+earth/*.svg
