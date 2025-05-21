@@ -115,8 +115,10 @@ def enhance_color_realism(colors, season):
     return enhanced_colors
 
 def apply_realistic_colors(koppen_map_path, heightmap_path, output_path, season="summer", 
-                         color_data=None, add_variation=True, json_path=None):
+                         color_data=None, add_variation=True, json_path=None, skip_ocean=False):
     print(f"\nGenerating realistic {season} biome map...")
+    if skip_ocean:
+        print("Skipping ocean color processing")
     
     # Load color data
     if json_path:
@@ -148,6 +150,12 @@ def apply_realistic_colors(koppen_map_path, heightmap_path, output_path, season=
                 # Get Köppen class
                 pixel_tuple = tuple(koppen_img[y, x])
                 koppen_class = COLOR_TO_KOPPEN.get(pixel_tuple, 'Ocean')
+                
+                # Skip ocean processing if requested
+                if skip_ocean and koppen_class == 'Ocean':
+                    realistic_img[y, x] = koppen_img[y, x]  # Keep original ocean color
+                    pbar.update(1)
+                    continue
                 
                 # Get base color for this biome + season
                 if koppen_class == 'Ocean':
@@ -212,7 +220,7 @@ def apply_realistic_colors(koppen_map_path, heightmap_path, output_path, season=
     Image.fromarray(realistic_img).save(output_path)
     print(f"\n✓ Realistic {season} biome map saved to {output_path}")
 
-def generate_all_seasons(koppen_map_path, heightmap_path, output_dir, add_variation=True, json_path=None):
+def generate_all_seasons(koppen_map_path, heightmap_path, output_dir, add_variation=True, json_path=None, skip_ocean=False):
     """Generate realistic biome maps for all four seasons with hemisphere awareness"""
     output_dir = Path(output_dir)
     output_dir.mkdir(exist_ok=True, parents=True)
@@ -247,6 +255,12 @@ def generate_all_seasons(koppen_map_path, heightmap_path, output_dir, add_variat
                     # Get Köppen class
                     pixel_tuple = tuple(koppen_img[y, x])
                     koppen_class = COLOR_TO_KOPPEN.get(pixel_tuple, 'Ocean')
+                    
+                    # Skip ocean processing if requested
+                    if skip_ocean and koppen_class == 'Ocean':
+                        realistic_img[y, x] = koppen_img[y, x]  # Keep original ocean color
+                        pbar.update(1)
+                        continue
                     
                     # Get base color for this biome + season
                     if koppen_class == 'Ocean':
@@ -332,6 +346,8 @@ if __name__ == "__main__":
                        help="Generate maps for all four seasons")
     parser.add_argument("--no-variation", action="store_true",
                        help="Disable random color variation for more consistent output")
+    parser.add_argument("--skip-ocean", action="store_true",
+                       help="Skip ocean processing and keep original ocean colors")
     parser.add_argument("--json", default=DEFAULT_CLIMATE_PALETTES,
                        help="Path to JSON file containing color data")
     
@@ -347,7 +363,8 @@ if __name__ == "__main__":
             args.heightmap, 
             output_dir,
             add_variation=not args.no_variation,
-            json_path=args.json
+            json_path=args.json,
+            skip_ocean=args.skip_ocean
         )
     else:
         output_path = output_dir / f"realistic_biomes_{args.season}.png"
@@ -357,5 +374,6 @@ if __name__ == "__main__":
             output_path,
             season=args.season,
             add_variation=not args.no_variation,
-            json_path=args.json
+            json_path=args.json,
+            skip_ocean=args.skip_ocean
         )
