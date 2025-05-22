@@ -40,6 +40,7 @@ def get_biome(pixel, color_map):
     return color_map[closest]
 
 def classify_koppen(pgen_pixel, spacegeo_pixel, elevation, lat_norm):
+    # TODO: do this based on a matrix, where cells hold a koppen class or a rule with a koppen class output
     """Final Köppen classification with optimized climate distributions."""
     # Skip ocean pixels - using 0-255 heightmap values
     if (tuple(spacegeo_pixel) == (76, 102, 178) or 
@@ -66,7 +67,10 @@ def classify_koppen(pgen_pixel, spacegeo_pixel, elevation, lat_norm):
         if spacegeo_biome == 'Tropical Rainforest':
             return 'Af'
         elif pgen_biome == 'Tropical Dry Forest':
-            return 'Am' if norm_elev < 0.3 else 'Aw'
+            if spacegeo_biome == 'Savanna':
+                return 'Aw'
+            else:
+                return 'Am' if norm_elev < 0.3 else 'Aw'
         elif spacegeo_biome == 'Subtropical Desert' or pgen_biome == 'Desert':
             return 'BWh' if norm_elev < 0.6 else 'BWk'
         elif pgen_biome == 'Savanna':
