@@ -6,5 +6,5 @@ Temperate Seasonal Forest,EF,ET,BSk (lat < 35) | Dfb (lat >= 45),BWk,BSk,Cfa (la
 Tropical Rainforest,EF,ET,Af,BWh (elev < 0.6) | BWk,Af,Af,Af,BSh,Am (elev < 0.3),Aw,Af
 Shrubland,EF,ET,BSk (lat < 35) | Dfb (lat >= 45),BWk,BSk,Cfb,BSk,BSk,Am (elev < 0.3),Aw,Af
 Temperate Grassland,EF,ET,BSk (lat < 35) | Dfb (lat >= 45),BWk,BSk,Cfb,BSk,BSk,Am (elev < 0.3),Aw,Af
-Savanna,EF,ET,Aw (lat < 23.5) | BSk,BWh (elev < 0.6) | BWk,Aw,Aw,Aw,BSh,Aw,Af,-
-Subtropical Desert,EF,ET,BWh (lat < 30) | BSk,BWk,BWh,BWh,BWh,BSh,BWh (elev < 0.6) | BWk,-,-
+Savanna,EF,ET,Aw (lat < 23.5) | BSk,BWh (elev < 0.6) | BWk,Aw,Aw,Aw,BSh,BSh,Aw,Af
+Subtropical Desert,EF,ET,BWh (lat < 30) | BSk,BWk,BWh,BWh,BWh,BSh,BWh (elev < 0.6) | BWk,BWh,BSh

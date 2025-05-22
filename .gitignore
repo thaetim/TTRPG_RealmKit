@@ -22,7 +22,6 @@ debug_results/
 map*.*
 !map*.html
 preview.bmp
-earth/*.png
-earth/*.jpg
-earth/*.jpeg
-earth/*.svg
+climate/**/*
+!climate/koppen_matrix.csv
+!climate/climate_palettes.json
