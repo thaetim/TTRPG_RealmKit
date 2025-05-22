@@ -4,6 +4,7 @@ from PIL import Image
 from pathlib import Path
 from tqdm import tqdm
 import json
+import random
 
 from biome_arrange_constants import *
 
@@ -58,65 +59,99 @@ def load_color_data(json_path):
         data = json.load(f)
     
     color_data = {}
-    for koppen_code, monthly_data in data['colors'].items():
-        color_data[koppen_code] = {}
-        for month, month_data in monthly_data.items():
-            # Convert to numpy arrays
-            mean_color = np.array(month_data['mean'])
-            p75_color = np.array(month_data['p75'])
+    
+    # First check if we have monthly_colors (new format)
+    if 'monthly_colors' in data:
+        for koppen_code, monthly_data in data['monthly_colors'].items():
+            color_data[koppen_code] = {}
+            for month, month_data in monthly_data.items():
+                # Use mean color as base
+                base_color = np.array(month_data['mean'])
+                
+                # Convert to HSV and adjust saturation
+                hsv = rgb_to_hsv(base_color/255.0)
+                hsv[1] = min(1.0, hsv[1]*1.2)  # 20% saturation boost
+                enhanced_color = hsv_to_rgb(hsv)*255
+                
+                color_data[koppen_code][month] = enhanced_color.astype(int).tolist()
+    
+    # Also check seasonal_palettes for additional data
+    if 'seasonal_palettes' in data:
+        for koppen_code, seasonal_data in data['seasonal_palettes'].items():
+            if koppen_code not in color_data:
+                color_data[koppen_code] = {}
             
-            # Blend towards the more vibrant color
-            base_color = mean_color * 0.3 + p75_color * 0.7
-            
-            # Convert to HSV and adjust saturation
-            hsv = rgb_to_hsv(base_color/255.0)
-            hsv[1] = min(1.0, hsv[1]*1.2)  # 20% saturation boost
-            enhanced_color = hsv_to_rgb(hsv)*255
-            
-            # Convert back to list for JSON compatibility
-            color_data[koppen_code][month] = enhanced_color.astype(int).tolist()
-            
+            for season_key, season_data in seasonal_data.items():
+                # Handle both formats (some tropical zones just have a single value)
+                if isinstance(season_data.get('mean'), list):
+                    base_color = np.array(season_data['mean'])
+                elif isinstance(season_data.get('mean'), (int, float)):
+                    # For tropical zones that just have a single value
+                    base_color = np.array([season_data['mean'], season_data['mean'], season_data['mean']])
+                else:
+                    continue
+                
+                # Convert to HSV and adjust saturation
+                hsv = rgb_to_hsv(base_color/255.0)
+                hsv[1] = min(1.0, hsv[1]*1.2)
+                enhanced_color = hsv_to_rgb(hsv)*255
+                
+                # Assign to all months in this season
+                for month in season_data.get('months', [month[:3] for month in ['january', 'april', 'july', 'october']]):
+                    month_abbr = month[:3].lower()
+                    color_data[koppen_code][month_abbr] = enhanced_color.astype(int).tolist()
+    
     return color_data
 
-def get_season_by_hemisphere(y, height, season):
+def get_season_by_hemisphere(y, height, month):
     """Adjust season based on hemisphere (y-coordinate)"""
+    month = month.lower()[:3]  # Ensure we have 3-letter month abbreviation
+    
     if y < height // 2:  # Northern hemisphere
-        return season
+        return month
     else:  # Southern hemisphere - invert seasons
         season_map = {
             "jan": "jul",
+            "feb": "aug",
+            "mar": "sep",
             "apr": "oct",
+            "may": "nov",
+            "jun": "dec",
             "jul": "jan",
-            "oct": "apr"
+            "aug": "feb",
+            "sep": "mar",
+            "oct": "apr",
+            "nov": "may",
+            "dec": "jun"
         }
-        return season_map.get(season, season)
+        return season_map.get(month, month)
 
-def enhance_color_realism(colors, season):
+def enhance_color_realism(colors, month):
     """Apply color theory and natural variation to make colors more realistic"""
     enhanced_colors = {}
     
-    for koppen_code, seasonal_colors in colors.items():
+    for koppen_code, monthly_colors in colors.items():
         enhanced_colors[koppen_code] = {}
         
-        # Use annual average if specific season is missing
-        if season in seasonal_colors:
-            base_color = seasonal_colors[season]
+        # Use monthly color if available
+        if month in monthly_colors:
+            base_color = monthly_colors[month]
         else:
-            # Fallback to average of all available seasons
-            all_season_colors = list(seasonal_colors.values())
-            base_color = np.mean(all_season_colors, axis=0) if all_season_colors else np.array([120, 100, 60])
+            # Fallback to average of all available months
+            all_month_colors = list(monthly_colors.values())
+            base_color = np.mean(all_month_colors, axis=0) if all_month_colors else np.array([120, 100, 60])
             
-        # Add variation even if using fallback
+        # Add variation
         variation = np.random.randint(-5, 6, size=3)
         varied_color = np.clip(np.array(base_color) + variation, 0, 255)
         
-        enhanced_colors[koppen_code][season] = tuple(varied_color)
+        enhanced_colors[koppen_code][month] = tuple(varied_color)
             
     return enhanced_colors
 
-def apply_realistic_colors(koppen_map_path, heightmap_path, output_path, season="summer", 
+def apply_realistic_colors(koppen_map_path, heightmap_path, output_path, month="jul", 
                          color_data=None, add_variation=True, json_path=None, skip_ocean=False):
-    print(f"\nGenerating realistic {season} biome map...")
+    print(f"\nGenerating realistic {month} biome map...")
     if skip_ocean:
         print("Skipping ocean color processing")
     
@@ -135,17 +170,17 @@ def apply_realistic_colors(koppen_map_path, heightmap_path, output_path, season=
     
     # Enhance colors for realism if requested
     if add_variation:
-        colors = enhance_color_realism(colors, season)
+        colors = enhance_color_realism(colors, month)
     else:
         # Maintain full structure when not enhancing
-        colors = {k: {season: v[season]} for k, v in colors.items() if season in v}
+        colors = {k: {month: v[month]} for k, v in colors.items() if month in v}
     
     # Process pixels
     missing_classes = set()
-    missing_seasons = set()
+    missing_months = set()
     with tqdm(total=height*width, desc="Applying realistic colors") as pbar:
         for y in range(height):
-            current_season = get_season_by_hemisphere(y, height, season)
+            current_month = get_season_by_hemisphere(y, height, month)
             for x in range(width):
                 # Get Köppen class
                 pixel_tuple = tuple(koppen_img[y, x])
@@ -157,7 +192,7 @@ def apply_realistic_colors(koppen_map_path, heightmap_path, output_path, season=
                     pbar.update(1)
                     continue
                 
-                # Get base color for this biome + season
+                # Get base color for this biome + month
                 if koppen_class == 'Ocean':
                     # Ocean blues vary by depth
                     depth_factor = max(0.3, 1.0 + heightmap[y, x] * 1.5)
@@ -169,14 +204,14 @@ def apply_realistic_colors(koppen_map_path, heightmap_path, output_path, season=
                 else:
                     # Land biomes
                     try:
-                        # Use the season adjusted for hemisphere
-                        base_color = np.array(colors[koppen_class][current_season])
+                        # Use the month adjusted for hemisphere
+                        base_color = np.array(colors[koppen_class][current_month])
                     except (KeyError, TypeError) as e:
                         # Track missing data instead of raising errors
                         if koppen_class not in colors:
                             missing_classes.add(koppen_class)
-                        elif season not in colors[koppen_class]:
-                            missing_seasons.add(f"{koppen_class}:{season}")
+                        elif month not in colors[koppen_class]:
+                            missing_months.add(f"{koppen_class}:{month}")
                         else:
                             # For other unexpected errors, use fallback color but log it
                             missing_classes.add(f"ERROR:{koppen_class}:{str(e)}")
@@ -207,21 +242,21 @@ def apply_realistic_colors(koppen_map_path, heightmap_path, output_path, season=
                 pbar.update(1)
 
     # After processing all pixels, save missing data to file
-    if missing_classes or missing_seasons:
+    if missing_classes or missing_months:
         with open("missing_color_data.txt", "w") as f:
             if missing_classes:
                 f.write("Missing Köppen classes:\n")
                 f.write("\n".join(sorted(missing_classes)) + "\n\n")
-            if missing_seasons:
-                f.write("Missing season data (format: KöppenClass:Season):\n")
-                f.write("\n".join(sorted(missing_seasons)) + "\n")
+            if missing_months:
+                f.write("Missing month data (format: KöppenClass:Month):\n")
+                f.write("\n".join(sorted(missing_months)) + "\n")
     
     # Save output
     Image.fromarray(realistic_img).save(output_path)
-    print(f"\n✓ Realistic {season} biome map saved to {output_path}")
+    print(f"\n✓ Realistic {month} biome map saved to {output_path}")
 
-def generate_all_seasons(koppen_map_path, heightmap_path, output_dir, add_variation=True, json_path=None, skip_ocean=False):
-    """Generate realistic biome maps for all four seasons with hemisphere awareness"""
+def generate_all_months(koppen_map_path, heightmap_path, output_dir, add_variation=True, json_path=None, skip_ocean=False):
+    """Generate realistic biome maps for all four months with hemisphere awareness"""
     output_dir = Path(output_dir)
     output_dir.mkdir(exist_ok=True, parents=True)
     
@@ -238,18 +273,18 @@ def generate_all_seasons(koppen_map_path, heightmap_path, output_dir, add_variat
     heightmap = np.array(Image.open(heightmap_path).convert('L')) / 255.0
     height, width = heightmap.shape
     
-    # Generate each season
-    for season in ["jan", "apr", "jul", "oct"]:
-        output_path = output_dir / f"realistic_biomes_{season}.png"
+    # Generate each month
+    for month in ["jan", "apr", "jul", "oct"]:
+        output_path = output_dir / f"realistic_biomes_{month}.png"
         realistic_img = np.zeros((height, width, 3), dtype=np.uint8)
         
         missing_classes = set()
-        missing_seasons = set()
+        missing_months = set()
         
-        with tqdm(total=height*width, desc=f"Generating {season} map") as pbar:
+        with tqdm(total=height*width, desc=f"Generating {month} map") as pbar:
             for y in range(height):
-                # Determine season based on hemisphere
-                current_season = get_season_by_hemisphere(y, height, season)
+                # Determine month based on hemisphere
+                current_month = get_season_by_hemisphere(y, height, month)
                 
                 for x in range(width):
                     # Get Köppen class
@@ -262,7 +297,7 @@ def generate_all_seasons(koppen_map_path, heightmap_path, output_dir, add_variat
                         pbar.update(1)
                         continue
                     
-                    # Get base color for this biome + season
+                    # Get base color for this biome + month
                     if koppen_class == 'Ocean':
                         # Ocean blues vary by depth
                         depth_factor = max(0.3, 1.0 + heightmap[y, x] * 1.5)
@@ -274,13 +309,13 @@ def generate_all_seasons(koppen_map_path, heightmap_path, output_dir, add_variat
                     else:
                         # Land biomes
                         try:
-                            base_color = np.array(colors[koppen_class][current_season])
+                            base_color = np.array(colors[koppen_class][current_month])
                         except (KeyError, TypeError) as e:
                             # Track missing data
                             if koppen_class not in colors:
                                 missing_classes.add(koppen_class)
-                            elif current_season not in colors[koppen_class]:
-                                missing_seasons.add(f"{koppen_class}:{current_season}")
+                            elif current_month not in colors[koppen_class]:
+                                missing_months.add(f"{koppen_class}:{current_month}")
                             else:
                                 missing_classes.add(f"ERROR:{koppen_class}:{str(e)}")
                             
@@ -307,19 +342,19 @@ def generate_all_seasons(koppen_map_path, heightmap_path, output_dir, add_variat
                     pbar.update(1)
 
         # Save missing data to file
-        if missing_classes or missing_seasons:
-            missing_file = output_dir / f"missing_color_data_{season}.txt"
+        if missing_classes or missing_months:
+            missing_file = output_dir / f"missing_color_data_{month}.txt"
             with open(missing_file, "w") as f:
                 if missing_classes:
                     f.write("Missing Köppen classes:\n")
                     f.write("\n".join(sorted(missing_classes)) + "\n\n")
-                if missing_seasons:
-                    f.write("Missing season data (format: KöppenClass:Season):\n")
-                    f.write("\n".join(sorted(missing_seasons)) + "\n")
+                if missing_months:
+                    f.write("Missing month data (format: KöppenClass:Month):\n")
+                    f.write("\n".join(sorted(missing_months)) + "\n")
         
         # Save output
         Image.fromarray(realistic_img).save(output_path)
-        print(f"\n✓ Realistic {season} biome map saved to {output_path}")
+        print(f"\n✓ Realistic {month} biome map saved to {output_path}")
 
 if __name__ == "__main__":
     # Default file paths
@@ -340,10 +375,10 @@ if __name__ == "__main__":
                        help="Heightmap (grayscale)")
     parser.add_argument("--output", default=DEFAULT_OUTPUT,
                        help="Output directory for realistic biome maps")
-    parser.add_argument("--season", choices=["jan", "apr", "jul", "oct"], default="jul",
-                       help="Which season to generate (if not generating all)")
-    parser.add_argument("--all-seasons", action="store_true",
-                       help="Generate maps for all four seasons")
+    parser.add_argument("--month", choices=["jan", "apr", "jul", "oct"], default="jul",
+                       help="Which month to generate (if not generating all)")
+    parser.add_argument("--all-months", action="store_true",
+                       help="Generate maps for all four months")
     parser.add_argument("--no-variation", action="store_true",
                        help="Disable random color variation for more consistent output")
     parser.add_argument("--skip-ocean", action="store_true",
@@ -357,8 +392,8 @@ if __name__ == "__main__":
     output_dir = Path(args.output)
     output_dir.mkdir(exist_ok=True, parents=True)
     
-    if args.all_seasons:
-        generate_all_seasons(
+    if args.all_months:
+        generate_all_months(
             args.koppen, 
             args.heightmap, 
             output_dir,
@@ -367,12 +402,12 @@ if __name__ == "__main__":
             skip_ocean=args.skip_ocean
         )
     else:
-        output_path = output_dir / f"realistic_biomes_{args.season}.png"
+        output_path = output_dir / f"realistic_biomes_{args.month}.png"
         apply_realistic_colors(
             args.koppen, 
             args.heightmap, 
             output_path,
-            season=args.season,
+            month=args.month,
             add_variation=not args.no_variation,
             json_path=args.json,
             skip_ocean=args.skip_ocean
