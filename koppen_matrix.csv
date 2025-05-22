@@ -1,0 +1,10 @@
+Spacegeo\PGEN,Ice,Tundra,Grasslands,Taiga / Boreal Forest,Desert,Savanna,Temperate Forest,Temperate Rainforest,Xeric Shrubland,Tropical Dry Forest,Tropical Rainforest
+Ice/Tundra,EF,ET,ET,ET,ET,ET,ET,ET,ET,ET,ET
+Taiga / Boreal Forest,EF,ET,Dfc (lat >= 55 or elev > 0.7),Dfc,ET,ET,Dfc,Dfc,ET,Dfc,Dfc
+Temperate Rainforest,EF,ET,Cfb (lat < 55) | Dfc (lat >= 55),BWk,Cfb,Cfb,Cfb,BSk,Am (elev < 0.3),Aw,Af
+Temperate Seasonal Forest,EF,ET,BSk (lat < 35) | Dfb (lat >= 45),BWk,BSk,Cfa (lat < 35) | Dfb,Cfa,BSk,Am (elev < 0.3),Aw,Af
+Tropical Rainforest,EF,ET,Af,BWh (elev < 0.6) | BWk,Af,Af,Af,BSh,Am (elev < 0.3),Aw,Af
+Shrubland,EF,ET,BSk (lat < 35) | Dfb (lat >= 45),BWk,BSk,Cfb,BSk,BSk,Am (elev < 0.3),Aw,Af
+Temperate Grassland,EF,ET,BSk (lat < 35) | Dfb (lat >= 45),BWk,BSk,Cfb,BSk,BSk,Am (elev < 0.3),Aw,Af
+Savanna,EF,ET,Aw (lat < 23.5) | BSk,BWh (elev < 0.6) | BWk,Aw,Aw,Aw,BSh,Aw,Af,-
+Subtropical Desert,EF,ET,BWh (lat < 30) | BSk,BWk,BWh,BWh,BWh,BSh,BWh (elev < 0.6) | BWk,-,-
