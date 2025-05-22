@@ -1,10 +1,10 @@
-Spacegeo\PGEN,Ice,Tundra,Grasslands,Taiga / Boreal Forest,Desert,Savanna,Temperate Forest,Temperate Rainforest,Xeric Shrubland,Tropical Dry Forest,Tropical Rainforest
-Ice/Tundra,EF,ET,ET,ET,ET,ET,ET,ET,ET,ET,ET
-Taiga / Boreal Forest,EF,ET,Dfc (lat >= 55 or elev > 0.7),Dfc,ET,ET,Dfc,Dfc,ET,Dfc,Dfc
-Temperate Rainforest,EF,ET,Cfb (lat < 55) | Dfc (lat >= 55),BWk,Cfb,Cfb,Cfb,BSk,Am (elev < 0.3),Aw,Af
-Temperate Seasonal Forest,EF,ET,BSk (lat < 35) | Dfb (lat >= 45),BWk,BSk,Cfa (lat < 35) | Dfb,Cfa,BSk,Am (elev < 0.3),Aw,Af
-Tropical Rainforest,EF,ET,Af,BWh (elev < 0.6) | BWk,Af,Af,Af,BSh,Am (elev < 0.3),Aw,Af
-Shrubland,EF,ET,BSk (lat < 35) | Dfb (lat >= 45),BWk,BSk,Cfb,BSk,BSk,Am (elev < 0.3),Aw,Af
-Temperate Grassland,EF,ET,BSk (lat < 35) | Dfb (lat >= 45),BWk,BSk,Cfb,BSk,BSk,Am (elev < 0.3),Aw,Af
-Savanna,EF,ET,Aw (lat < 23.5) | BSk,BWh (elev < 0.6) | BWk,Aw,Aw,Aw,BSh,BSh,Aw,Af
-Subtropical Desert,EF,ET,BWh (lat < 30) | BSk,BWk,BWh,BWh,BWh,BSh,BWh (elev < 0.6) | BWk,BWh,BSh
+Spacegeo\PGEN            , Ice                         , Tundra                  , Grasslands              , Taiga/Boreal Forest     , Desert                  , Savanna                 , Temperate Forest        , Temperate Rainforest    , Xeric Shrubland         , Tropical Dry Forest     , Tropical Rainforest
+Ice/Tundra               , EF(elev>0.8)|ET(elev>0.6)|ET, ET(lat>60)|EF           , ET(lat>55)|EF           , ET(lat>50)|EF           , ET(lat>45)|EF           , ET(lat>40)|EF           , ET(lat>35)|EF           , ET(lat>30)|EF           , ET(lat>25)|EF           , ET(lat>20)|EF           , ET(lat>15)|EF
+Taiga/Boreal Forest      , EF(elev>0.85)|Dfc(lat>55)|ET, Dfc(lat>50)|ET          , Dfc(lat>45)|ET          , Dfc(lat>40)|ET          , Dfc(lat>35)|ET          , Dfc(lat>30)|ET          , Dfb(lat>25)|Dfc         , Cfb(lat>20)|Dfc         , Dfc(lat>15)|BSk         , Dfc(lat>10)|Aw|Dfc      , Dfc(lat>5)|Af|Dfc
+Temperate Rainforest     , Cfc(elev>0.8)|ET            , Cfc(elev>0.7)|ET        , Cfb(lat<50)|Cfc         , Cfb(lat<45)|Cfc         , Cfb(lat<40)|Cfc         , Cfb(lat<35)|Cfc         , Cfb(lat<30)|Cfb         , Cfb(lat<25)|Cfb         , Csa(lat<25)|Cfb         , Cwa(lat<20)|Cfb         , Af(lat<15)|Cfb
+Temperate Seasonal Forest, Dfc(lat>50)|ET              , Dfb(lat>45)|Dfc         , Dfb(lat>40)|Dfb         , Dfb(lat>35)|Dfb         , Dfb(lat>30)|Dfb         , Dfb(lat>25)|Dfb         , Dfb(lat>20)|Dfb         , Dfb(lat>15)|Cfa         , Dfb(lat>10)|Cwa         , Dfb(lat>5)|Am           , Dfb(lat>0)|Af
+Tropical Rainforest      , EF(elev>0.9)|Af(lat<15)|Am  , Af(lat<20)|Am(lat<25)|Af, Af(lat<25)|Aw(lat<30)|Af, Af(lat<30)|Aw(lat<35)|Af, Af(lat<35)|Aw(lat<40)|Af, Af(lat<40)|Aw(lat<45)|Af, Af(lat<45)|Aw(lat<50)|Af, Af(lat<50)|Aw(lat<55)|Af, Af(lat<55)|Aw(lat<60)|Af, Af(lat<60)|Aw(lat<65)|Af, Af
+Shrubland                , ET(elev>0.8)|BSk            , BSk(lat>40)|ET          , BSk(lat>35)|Dfb|BSk     , BSk(lat>30)|Dfb|BSk     , BSk(lat>25)|BSk         , BSk(lat>20)|BSk         , BSk(lat>15)|BSk|Csa     , BSk(lat>10)|Csa|BSk     , BSk(lat>5)|Csa|BSh      , BSk(lat>0)|BSh|Aw       , BSh|Am
+Temperate Grassland      , ET(elev>0.8)|BSk            , BSk(lat>40)|Dfb         , BSk(lat>35)|Dfb         , BSk(lat>30)|Dfb         , BSk(lat>25)|BSk         , BSk(lat>20)|BSk         , BSk(lat>15)|Cfa         , BSk(lat>10)|Cfa         , BSk(lat>5)|Cwa          , BSk(lat>0)|Aw           , BSk|Am
+Savanna                  , ET(elev>0.8)|Aw             , Aw(lat<35)|Cwa          , Aw(lat<35)|BSh|Aw       , Aw(lat<35)|BSh|Aw       , Aw(lat<35)|BWh|Aw       , Aw(lat<35)|Cwa|Aw       , Aw(lat<35)|Cfa|Aw       , Aw(lat<35)|Cfa|Aw       , Aw(lat<35)|Cfa|Aw       , Aw(lat<35)|As           , Aw
+Subtropical Desert       , EF(elev>0.9)|BWh            , BWh(lat<40)|BWk         , BWh(lat<40)|BSh         , BWh(lat<40)|BSh         , BWh(lat<40)|BWh         , BWh(lat<40)|BWh         , BWh(lat<40)|BWh|BSh     , BWh(lat<40)|BWh|BSh     , BWh(lat<40)|BWh|BSh     , BWh(lat<40)|BSh|Aw      , BWh|Aw
