@@ -4,7 +4,7 @@ from PIL import Image
 from tqdm import tqdm
 from pathlib import Path
 from functools import lru_cache
-import numpy as np
+import math
 
 from biome_arrange_constants import *
 
@@ -39,164 +39,89 @@ def get_biome(pixel, color_map):
     closest = closest_color(pixel_tuple, color_map_name)
     return color_map[closest]
 
+# ===== Matrix-Based Köppen Classification =====
+def load_koppen_matrix(filepath):
+    """Load the Köppen classification matrix from CSV."""
+    import csv
+    matrix = {}
+    
+    with open(filepath, 'r') as f:
+        reader = csv.reader(f)
+        headers = next(reader)[1:]  # PGEN biomes (skip first empty cell)
+        
+        for row in reader:
+            spacegeo_biome = row[0]
+            matrix[spacegeo_biome] = {}
+            
+            for i, cell in enumerate(row[1:]):
+                pgen_biome = headers[i]
+                matrix[spacegeo_biome][pgen_biome] = cell if cell != "-" else None
+    
+    return matrix
+
+# Load the matrix at module level (will be initialized once)
+KOPPEN_MATRIX = load_koppen_matrix("koppen_matrix.csv")
+
+def parse_koppen_rule(rule_str, elev=None, lat=None):
+    if not rule_str or rule_str == "-":
+        return None
+    
+    # Context with allowed variables/functions
+    context = {
+        'elev': elev,
+        'lat': lat,
+        'sqrt': math.sqrt,
+        'log': math.log
+    }
+    
+    for option in rule_str.split("|"):
+        option = option.strip()
+        
+        if "if" not in option:  # Default case
+            return option.split()[0]
+            
+        koppen_class, condition = option.split("if")
+        koppen_class = koppen_class.strip()
+        condition = condition.replace(")", "").strip()
+        
+        try:
+            if eval(condition, {}, context):  # Safe eval with no builtins
+                return koppen_class
+        except:
+            continue
+    
+    return None
+
 def classify_koppen(pgen_pixel, spacegeo_pixel, elevation, lat_norm):
-    # TODO: do this based on a matrix, where cells hold a koppen class or a rule with a koppen class output
-    """Final Köppen classification with optimized climate distributions."""
-    # Skip ocean pixels - using 0-255 heightmap values
+    """Matrix-based Köppen classification with elevation/latitude rules."""
+    # Skip ocean pixels
     if (tuple(spacegeo_pixel) == (76, 102, 178) or 
         tuple(pgen_pixel) == (76, 102, 178) or
-        elevation < 127):  # Land-ocean division at 127
+        elevation < 127):
         return 'Ocean'
     
-    abs_lat = abs(lat_norm * 90)  # Convert to degrees
-    norm_elev = elevation / 255    # Normalize elevation to 0-1
+    # Get normalized elevation (0-1)
+    norm_elev = elevation / 255
+    abs_lat = abs(lat_norm * 90)  # Absolute latitude in degrees
     
     # Get biomes from both maps
     pgen_biome = get_biome(pgen_pixel, PGEN_COLORS)
     spacegeo_biome = get_biome(spacegeo_pixel, SPACEGEO_COLORS)
-
+    
     # ===== Elevation Overrides =====
     if norm_elev > 0.8:  # High mountains
         if norm_elev > 0.9 or pgen_biome == 'Ice':
             return 'EF'
         return 'ET'
-
-    # ===== Climate Zone Determination =====
-    # Tropical Zone (0-23.5°)
-    if abs_lat < 23.5:
-        if spacegeo_biome == 'Tropical Rainforest':
-            return 'Af'
-        elif pgen_biome == 'Tropical Dry Forest':
-            if spacegeo_biome == 'Savanna':
-                return 'Aw'
-            else:
-                return 'Am' if norm_elev < 0.3 else 'Aw'
-        elif spacegeo_biome == 'Subtropical Desert' or pgen_biome == 'Desert':
-            return 'BWh' if norm_elev < 0.6 else 'BWk'
-        elif pgen_biome == 'Savanna':
-            return 'Aw'
-        elif pgen_biome == 'Grasslands':
-            return 'Aw'  # Force grasslands to savanna in tropics
-
-    # Subtropical Zone (23.5-35°)
-    elif 23.5 <= abs_lat < 35:
-        if pgen_biome == 'Xeric Shrubland':
-            return 'BSh' if abs_lat < 30 else 'BSk'
-        elif spacegeo_biome == 'Temperate Seasonal Forest':
-            return 'Cfa'
-        elif pgen_biome == 'Grasslands':
-            return 'BSk'
-        elif spacegeo_biome == 'Savanna':
-            return 'Aw'
-
-    # Temperate Zone (35-55°)
-    elif 35 <= abs_lat < 55:
-        if spacegeo_biome == 'Temperate Rainforest':
-            return 'Cfb'
-        elif pgen_biome == 'Temperate Forest':
-            # More Dfb in continental interiors
-            return 'Dfb' if (norm_elev > 0.4 or abs_lat > 45) else 'Cfb'
-        elif pgen_biome == 'Taiga / Boreal Forest':
-            return 'Dfc'
-        elif pgen_biome == 'Desert':
-            return 'BWk'
-
-    # Boreal/Arctic Zone (>55°)
-    else:
-        # Better polar progression
-        if norm_elev > 0.7:
-            return 'EF' if norm_elev > 0.85 else 'ET'
-        elif pgen_biome in ['Taiga / Boreal Forest', 'Temperate Forest']:
-            return 'Dfc'
-        else:
-            return 'ET'
-
-    # ===== Fallback Rules =====
-    # Priority to spacegeo for specific biomes
-    if spacegeo_biome in SPACEGEO_COLORS:
-        if spacegeo_biome in BIOME_TO_KOPPEN:
-            return BIOME_TO_KOPPEN[spacegeo_biome]
     
-    # Default to pgen biome mapping
-    return BIOME_TO_KOPPEN.get(pgen_biome, 'BSk')
-
-def classify_koppen9(pgen_pixel, spacegeo_pixel, elevation, lat_norm):
-    """Improved Köppen classification with better Hadley cell and polar zone handling."""
-    # Skip ocean pixels - using 0-255 heightmap values
-    if (tuple(spacegeo_pixel) == (76, 102, 178) or 
-        tuple(pgen_pixel) == (76, 102, 178) or
-        elevation < 127):  # Land-ocean division at 127
-        return 'Ocean'
-    
-    abs_lat = abs(lat_norm * 90)  # Convert to degrees
-    norm_elev = elevation / 255    # Normalize elevation to 0-1
-    
-    # Get biomes from both maps
-    pgen_biome = get_biome(pgen_pixel, PGEN_COLORS)
-    spacegeo_biome = get_biome(spacegeo_pixel, SPACEGEO_COLORS)
-    
-    # ===== Hadley Cell Edge Fix (Savanna Zones) =====
-    # Between 15-30° latitude where savannas should dominate
-    if 15 <= abs_lat <= 30:
-        if pgen_biome == 'Savanna' or spacegeo_biome == 'Savanna':
-            return 'Aw'
-        if pgen_biome == 'Grasslands' and norm_elev < 0.6:
-            return 'Aw'
-    
-    # ===== Polar Zone Altitude Progression =====
-    if abs_lat > 55:  # Polar and subpolar zones
-        if norm_elev > 0.9:  # Highest elevations
-            return 'EF'
-        elif norm_elev > 0.7:  # High mountain zones
-            if pgen_biome == 'Ice':
-                return 'EF'
-            return 'ET'
-        elif norm_elev > 0.5:  # Mid-elevation
-            if pgen_biome in ['Taiga / Boreal Forest', 'Temperate Forest']:
-                return 'Dfc'
-            return 'ET'
-        else:  # Low elevation
-            if pgen_biome == 'Tundra':
-                return 'ET'
-            return 'Dfc' if pgen_biome in ['Taiga / Boreal Forest', 'Temperate Forest'] else 'Cfc'
-    
-    # ===== Elevation Overrides =====
-    if norm_elev > 0.8:  # High mountains outside polar zones
-        if norm_elev > 0.9 or pgen_biome == 'Ice':
-            return 'EF'
-        return 'ET'
-    
-    # ===== Climate Zone Determination =====
-    # Tropical Zone (0-23.5°)
-    if abs_lat < 23.5:
-        if spacegeo_biome == 'Tropical Rainforest':
-            return 'Af'
-        elif pgen_biome == 'Tropical Dry Forest':
-            return 'Am' if norm_elev < 0.3 else 'Aw'
-        elif spacegeo_biome == 'Subtropical Desert' or pgen_biome == 'Desert':
-            return 'BWh' if norm_elev < 0.6 else 'BWk'
-        elif pgen_biome == 'Savanna':
-            return 'Aw'
-    
-    # Subtropical Zone (23.5-35°)
-    elif 23.5 <= abs_lat < 35:
-        if pgen_biome == 'Xeric Shrubland':
-            return 'BSh' if norm_elev < 0.5 else 'BSk'
-        elif spacegeo_biome == 'Temperate Seasonal Forest':
-            return 'Cfa'
-        elif pgen_biome == 'Grasslands':
-            return 'BSk'
-    
-    # Temperate Zone (35-55°)
-    elif 35 <= abs_lat < 55:
-        if spacegeo_biome == 'Temperate Rainforest':
-            return 'Cfb'
-        elif pgen_biome == 'Temperate Forest':
-            return 'Dfb' if (norm_elev > 0.5 or abs_lat > 45) else 'Cfb'
-        elif pgen_biome == 'Taiga / Boreal Forest':
-            return 'Dfc'
-        elif pgen_biome == 'Desert':
-            return 'BWk'
+    # ===== Matrix-Based Classification =====
+    # Try to find a rule in the matrix
+    if spacegeo_biome in KOPPEN_MATRIX and pgen_biome in KOPPEN_MATRIX[spacegeo_biome]:
+        rule = KOPPEN_MATRIX[spacegeo_biome][pgen_biome]
+        if rule:
+            result = parse_koppen_rule(rule, norm_elev, abs_lat)
+            if result:
+                return result
     
     # ===== Fallback Rules =====
     # Priority to spacegeo for specific biomes
@@ -206,698 +131,6 @@ def classify_koppen9(pgen_pixel, spacegeo_pixel, elevation, lat_norm):
     
     # Default to pgen biome mapping
     return BIOME_TO_KOPPEN.get(pgen_biome, 'BSk')
-
-def classify_koppen8(pgen_pixel, spacegeo_pixel, elevation, lat_norm):
-    """Final Köppen classification with polar region fixes and better climate distribution."""
-    # Skip ocean pixels - using 0-255 heightmap values
-    if (tuple(spacegeo_pixel) == (76, 102, 178) or 
-        tuple(pgen_pixel) == (76, 102, 178) or
-        elevation < 127):  # Land-ocean division at 127
-        return 'Ocean'
-    
-    abs_lat = abs(lat_norm * 90)  # Convert to degrees
-    norm_elev = elevation / 255    # Normalize elevation to 0-1
-    
-    # Get biomes from both maps
-    pgen_biome = get_biome(pgen_pixel, PGEN_COLORS)
-    spacegeo_biome = get_biome(spacegeo_pixel, SPACEGEO_COLORS)
-    
-    # ===== Polar Region Fixes =====
-    # Adjust latitude weighting for equirectangular projection
-    effective_lat = abs_lat * np.cos(np.radians(abs_lat))
-    
-    # ===== Elevation Overrides =====
-    if norm_elev > 0.8:  # High mountains
-        if norm_elev > 0.9 or pgen_biome == 'Ice':
-            return 'EF'
-        return 'ET'
-    
-    # ===== Climate Zone Determination =====
-    # Tropical Zone (0-23.5°)
-    if effective_lat < 23.5:
-        if spacegeo_biome == 'Tropical Rainforest':
-            return 'Af'
-        elif pgen_biome == 'Tropical Dry Forest':
-            return 'Am' if norm_elev < 0.3 else 'Aw'
-        elif spacegeo_biome == 'Subtropical Desert' or pgen_biome == 'Desert':
-            return 'BWh' if norm_elev < 0.6 else 'BWk'
-        elif pgen_biome == 'Savanna':
-            return 'Aw'
-    
-    # Subtropical Zone (23.5-35°)
-    elif 23.5 <= effective_lat < 35:
-        if pgen_biome == 'Xeric Shrubland':
-            return 'BSh' if norm_elev < 0.5 else 'BSk'
-        elif spacegeo_biome == 'Temperate Seasonal Forest':
-            return 'Cfa'
-        elif pgen_biome == 'Grasslands':
-            return 'BSk'
-    
-    # Temperate Zone (35-55°)
-    elif 35 <= effective_lat < 55:
-        if spacegeo_biome == 'Temperate Rainforest':
-            return 'Cfb'
-        elif pgen_biome == 'Temperate Forest':
-            # More humid continental (Dfb) in continental interiors
-            return 'Dfb' if (norm_elev > 0.5 or 
-                           (effective_lat > 45 and norm_elev > 0.3)) else 'Cfb'
-        elif pgen_biome == 'Taiga / Boreal Forest':
-            return 'Dfc'
-        elif pgen_biome == 'Desert':
-            return 'BWk'
-    
-    # Boreal/Arctic Zone (>55°)
-    else:
-        # Stronger transition to polar climates
-        if effective_lat > 70:  # High Arctic
-            return 'EF' if pgen_biome == 'Ice' else 'ET'
-        elif effective_lat > 60:  # Low Arctic
-            if pgen_biome in ['Taiga / Boreal Forest', 'Temperate Forest']:
-                return 'Dfc'
-            return 'ET'
-        else:  # Boreal (55-60°)
-            return 'Dfc' if pgen_biome in ['Taiga / Boreal Forest', 'Temperate Forest'] else 'ET'
-    
-    # ===== Fallback Rules =====
-    # Priority to spacegeo for specific biomes
-    if spacegeo_biome in SPACEGEO_COLORS:
-        if spacegeo_biome in BIOME_TO_KOPPEN:
-            return BIOME_TO_KOPPEN[spacegeo_biome]
-    
-    # Default to pgen biome mapping
-    return BIOME_TO_KOPPEN.get(pgen_biome, 'BSk')  # Default to cold steppe
-
-def classify_koppen7(pgen_pixel, spacegeo_pixel, elevation, lat_norm):
-    """Improved Köppen classification with hot desert rules incorporated."""
-    # Skip ocean pixels - more robust detection
-    if (tuple(spacegeo_pixel) == (76, 102, 178) or 
-        tuple(pgen_pixel) == (76, 102, 178) or
-        elevation < 127/255):  # Land-ocean division at ~127
-        return 'Ocean'
-    
-    abs_lat = abs(lat_norm * 90)  # Convert to degrees
-    norm_elev = elevation / 255  # Normalize elevation to 0-1
-    
-    # Get biomes from both maps
-    pgen_biome = get_biome(pgen_pixel, PGEN_COLORS)
-    spacegeo_biome = get_biome(spacegeo_pixel, SPACEGEO_COLORS)
-    
-    # ===== Elevation Overrides =====
-    if norm_elev > 0.8:  # High mountains
-        return 'EF' if (norm_elev > 0.9 or pgen_biome == 'Ice') else 'ET'
-    
-    # ===== Hot Desert Rules =====
-    if (spacegeo_biome == 'Subtropical Desert' or 
-        (pgen_biome == 'Desert' and abs_lat < 35)):
-        # Hot deserts in tropics/subtropics
-        if norm_elev < 0.6:
-            return 'BWh'
-        # High elevation deserts become cold
-        return 'BWk'
-    
-    # ===== Fix Problematic Combinations =====
-    # 1. Tropical Dry Forest + Tundra
-    if (pgen_biome == 'Tropical Dry Forest' and 
-        spacegeo_biome == 'Tundra'):
-        return 'Aw' if abs_lat < 15 else 'Cwa'
-    
-    # 2. Temperate Forest + Tundra (arctic transition)
-    if (pgen_biome == 'Temperate Forest' and 
-        spacegeo_biome == 'Tundra'):
-        return 'ET' if abs_lat > 60 else 'Dfc'
-    
-    # ===== Climate Zone Determination =====
-    # Tropical Zone (0-23.5°)
-    if abs_lat < 23.5:
-        if spacegeo_biome == 'Tropical Rainforest':
-            return 'Af'
-        elif pgen_biome == 'Tropical Dry Forest':
-            return 'Am' if norm_elev < 0.3 else 'Aw'
-        elif pgen_biome == 'Savanna':
-            return 'Aw'
-    
-    # Subtropical Zone (23.5-35°)
-    elif 23.5 <= abs_lat < 35:
-        if pgen_biome == 'Xeric Shrubland':
-            return 'BSh' if norm_elev < 0.5 else 'BSk'
-        elif spacegeo_biome == 'Temperate Seasonal Forest':
-            return 'Cfa'
-        elif pgen_biome == 'Grasslands':
-            return 'BSk'
-    
-    # Temperate Zone (35-55°)
-    elif 35 <= abs_lat < 55:
-        if spacegeo_biome == 'Temperate Rainforest':
-            return 'Cfb'
-        elif pgen_biome == 'Temperate Forest':
-            return 'Cfb' if norm_elev < 0.6 else 'Dfb'
-        elif pgen_biome == 'Taiga / Boreal Forest':
-            return 'Dfc'
-        elif pgen_biome == 'Desert':  # Temperate deserts are cold
-            return 'BWk'
-    
-    # Boreal Zone (55-66.5°)
-    elif 55 <= abs_lat < 66.5:
-        if pgen_biome == 'Taiga / Boreal Forest':
-            return 'Dfc'
-        elif pgen_biome == 'Tundra':
-            return 'ET'
-    
-    # Arctic Zone (>66.5°)
-    else:
-        return 'EF' if pgen_biome == 'Ice' else 'ET'
-    
-    # ===== Fallback Rules =====
-    # Use spacegeo biomes when more specific
-    if spacegeo_biome in BIOME_TO_KOPPEN:
-        return BIOME_TO_KOPPEN[spacegeo_biome]
-    
-    # Default to pgen biome mapping
-    return BIOME_TO_KOPPEN.get(pgen_biome, 'Cfb')
-
-def classify_koppen6(pgen_pixel, spacegeo_pixel, elevation, lat_norm):
-    """Final refined Köppen classification based on comprehensive analysis."""
-    # Convert normalized latitude to degrees
-    abs_lat = abs(lat_norm * 90)  # 0° to 90°
-    
-    # ===== Improved Ocean Detection =====
-    ocean_colors = [
-        (76, 102, 178),  # SpaceGeo ocean
-        (0, 0, 139),      # Köppen ocean
-        (110, 160, 170)   # PGen ocean-like
-    ]
-    if (tuple(spacegeo_pixel) in ocean_colors or 
-        tuple(pgen_pixel) in ocean_colors or
-        elevation < 0.005):  # Absolute water threshold
-        return 'Ocean'
-    
-    # ===== Elevation Normalization =====
-    # Adjust elevation to account for minimum observed 0.502
-    adj_elev = (elevation - 0.5) * 2 if elevation > 0.5 else 0
-    adj_elev = max(0, min(1, adj_elev))  # Clamp to 0-1
-    
-    # ===== Get Biomes =====
-    pgen_biome = get_biome(pgen_pixel, PGEN_COLORS)
-    spacegeo_biome = get_biome(spacegeo_pixel, SPACEGEO_COLORS)
-    
-    # ===== Alpine Climate Override =====
-    if adj_elev > 0.9:
-        return 'EF' if (adj_elev > 0.95 or pgen_biome == 'Ice') else 'ET'
-    
-    # ===== Fix Specific Issues =====
-    # 1. Cold Steppe (BSk) overrepresentation
-    if (pgen_biome == 'Grasslands' and 
-        spacegeo_biome in ['Tundra', 'Temperate Grassland'] and
-        abs_lat > 30):
-        return 'BSk'
-    
-    # 2. Temperate Forest misclassifications
-    if (pgen_biome == 'Temperate Forest' and 
-        spacegeo_biome == 'Tundra' and
-        abs_lat < 60):
-        return 'Dfc' if adj_elev > 0.4 else 'Cfb'
-    
-    # ===== Climate Zones =====
-    # Tropical (0-23.5°)
-    if abs_lat < 23.5:
-        if spacegeo_biome == 'Tropical Rainforest':
-            return 'Af'
-        elif pgen_biome == 'Tropical Dry Forest':
-            return 'Aw'
-        elif spacegeo_biome == 'Subtropical Desert':
-            return 'BWh'
-        elif pgen_biome == 'Desert':
-            return 'BWh' if adj_elev < 0.6 else 'BWk'
-    
-    # Subtropical (23.5-35°)
-    elif 23.5 <= abs_lat < 35:
-        if pgen_biome == 'Xeric Shrubland':
-            return 'BSh'
-        elif spacegeo_biome == 'Temperate Seasonal Forest':
-            return 'Cfa'
-        elif pgen_biome == 'Grasslands':
-            return 'BSk' if adj_elev > 0.3 else 'Cwa'
-    
-    # Temperate (35-55°)
-    elif 35 <= abs_lat < 55:
-        if spacegeo_biome == 'Temperate Rainforest':
-            return 'Cfb'
-        elif pgen_biome == 'Temperate Forest':
-            return 'Dfb' if adj_elev > 0.5 else 'Cfb'
-        elif pgen_biome == 'Taiga / Boreal Forest':
-            return 'Dfc'
-    
-    # Boreal (55-66.5°)
-    elif 55 <= abs_lat < 66.5:
-        if pgen_biome in ['Taiga / Boreal Forest', 'Temperate Forest']:
-            return 'Dfc'
-        elif pgen_biome == 'Tundra':
-            return 'ET'
-    
-    # Arctic (>66.5°)
-    else:
-        return 'EF' if pgen_biome == 'Ice' else 'ET'
-    
-    # ===== Fallback Rules =====
-    # Priority to spacegeo for specific biomes
-    if spacegeo_biome in SPACEGEO_COLORS:
-        if spacegeo_biome in BIOME_TO_KOPPEN:
-            return BIOME_TO_KOPPEN[spacegeo_biome]
-    
-    # Default to pgen biome mapping
-    return BIOME_TO_KOPPEN.get(pgen_biome, 'BSk')  # Default to cold steppe
-
-def classify_koppen5(pgen_pixel, spacegeo_pixel, elevation, lat_norm):
-    """Refined Köppen classification based on distribution analysis."""
-    # Skip ocean pixels - more robust detection
-    if (tuple(spacegeo_pixel) == (76, 102, 178) or 
-        tuple(pgen_pixel) == (76, 102, 178) or
-        elevation < 0.001):  # Absolute water level
-        return 'Ocean'
-    
-    abs_lat = abs(lat_norm * 90)  # Convert to degrees
-    elevation = max(0, min(1, elevation))  # Clamp elevation
-    
-    # Get biomes from both maps
-    pgen_biome = get_biome(pgen_pixel, PGEN_COLORS)
-    spacegeo_biome = get_biome(spacegeo_pixel, SPACEGEO_COLORS)
-    
-    # ===== Elevation Overrides =====
-    if elevation > 0.8:
-        if elevation > 0.95 or pgen_biome == 'Ice':
-            return 'EF'
-        return 'ET'
-    
-    # ===== Fix Problematic Combinations =====
-    # 1. Tropical Dry Forest + Tundra (shouldn't exist)
-    if (pgen_biome == 'Tropical Dry Forest' and 
-        spacegeo_biome == 'Tundra'):
-        return 'Aw' if abs_lat < 15 else 'Cwa'
-    
-    # 2. Temperate Forest + Tundra (arctic transition)
-    if (pgen_biome == 'Temperate Forest' and 
-        spacegeo_biome == 'Tundra'):
-        return 'ET' if abs_lat > 60 else 'Dfc'
-    
-    # ===== Climate Zone Determination =====
-    # Tropical Zone (0-23.5°)
-    if abs_lat < 23.5:
-        if spacegeo_biome == 'Tropical Rainforest':
-            return 'Af'
-        elif pgen_biome == 'Tropical Dry Forest':
-            return 'Am' if elevation < 0.3 else 'Aw'
-        elif pgen_biome == 'Savanna':
-            return 'Aw'
-        elif pgen_biome == 'Desert':
-            return 'BWh' if elevation < 0.6 else 'BWk'
-        elif spacegeo_biome == 'Subtropical Desert':
-            return 'BWh'
-    
-    # Subtropical Zone (23.5-35°)
-    elif 23.5 <= abs_lat < 35:
-        if pgen_biome == 'Xeric Shrubland':
-            return 'BSh' if elevation < 0.5 else 'BSk'
-        elif spacegeo_biome == 'Temperate Seasonal Forest':
-            return 'Cfa'
-        elif pgen_biome == 'Grasslands':
-            return 'BSk'
-    
-    # Temperate Zone (35-55°)
-    elif 35 <= abs_lat < 55:
-        if spacegeo_biome == 'Temperate Rainforest':
-            return 'Cfb'
-        elif pgen_biome == 'Temperate Forest':
-            return 'Cfb' if elevation < 0.6 else 'Dfb'
-        elif pgen_biome == 'Taiga / Boreal Forest':
-            return 'Dfc'
-    
-    # Boreal Zone (55-66.5°)
-    elif 55 <= abs_lat < 66.5:
-        if pgen_biome == 'Taiga / Boreal Forest':
-            return 'Dfc'
-        elif pgen_biome == 'Tundra':
-            return 'ET'
-    
-    # Arctic Zone (>66.5°)
-    else:
-        return 'EF' if pgen_biome == 'Ice' else 'ET'
-    
-    # ===== Fallback Rules =====
-    # Use spacegeo biomes when more specific
-    if spacegeo_biome in BIOME_TO_KOPPEN:
-        return BIOME_TO_KOPPEN[spacegeo_biome]
-    
-    # Default to pgen biome mapping
-    return BIOME_TO_KOPPEN.get(pgen_biome, 'Cfb')
-
-def classify_koppen4(pgen_pixel, spacegeo_pixel, elevation, lat_norm):
-    """Improved Köppen classification based on actual biome combinations."""
-    # Skip ocean pixels
-    if tuple(spacegeo_pixel) == (76, 102, 178):
-        return 'Ocean'
-    
-    abs_lat = abs(lat_norm)  # 0=equator, 1=pole
-    
-    # Get biomes from both maps
-    pgen_biome = get_biome(pgen_pixel, PGEN_COLORS)
-    spacegeo_biome = get_biome(spacegeo_pixel, SPACEGEO_COLORS)
-    
-    # ===== Elevation Overrides =====
-    if elevation > 0.8:  # High mountains
-        return 'EF' if (elevation > 0.9 or pgen_biome == 'Ice') else 'ET'
-    
-    # ===== Handle Common Problematic Combinations =====
-    # 1. Tropical Dry Forest + Tundra (608k cases)
-    if (pgen_biome == 'Tropical Dry Forest' and 
-        spacegeo_biome == 'Tundra'):
-        return 'Cwa' if abs_lat < 0.4 else 'Dfb'  # Force temperate climate
-    
-    # 2. Taiga/Tundra and Temperate/Tundra transitions (very common)
-    if spacegeo_biome == 'Tundra':
-        if pgen_biome in ['Taiga / Boreal Forest', 'Temperate Forest']:
-            return 'ET' if abs_lat > 0.6 else 'Dfc'  # Arctic or subarctic
-    
-    # 3. Xeric Shrubland combinations (arid transitions)
-    if pgen_biome == 'Xeric Shrubland':
-        if spacegeo_biome == 'Savanna':
-            return 'BSh' if abs_lat < 0.3 else 'BSk'
-        elif spacegeo_biome == 'Subtropical Desert':
-            return 'BWh' if abs_lat < 0.35 else 'BWk'
-    
-    # ===== Primary Biome Classification =====
-    # Cases where spacegeo has more specific info
-    if spacegeo_biome == 'Tropical Rainforest':
-        return 'Af' if abs_lat < 0.3 else 'Cfb'
-    elif spacegeo_biome == 'Temperate Rainforest':
-        return 'Cfb'
-    elif spacegeo_biome == 'Temperate Seasonal Forest':
-        return 'Cfa'
-    
-    # Handle pgen biomes when spacegeo is less specific
-    if pgen_biome == 'Tropical Rainforest':
-        # Handle edge cases (42 occurrences with Temperate Grassland)
-        if spacegeo_biome == 'Temperate Grassland':
-            return 'Cwa'  # Monsoon-influenced transition
-        return 'Af'
-    
-    # ===== Fallback Rules =====
-    # Use BIOME_TO_KOPPEN but with latitude adjustments
-    final_biome = (spacegeo_biome if spacegeo_biome in 
-                  ['Tropical Rainforest', 'Temperate Rainforest'] 
-                  else pgen_biome)
-    
-    koppen = BIOME_TO_KOPPEN.get(final_biome, 'Cfb')
-    
-    # Latitude-based adjustments
-    if abs_lat < 0.25:  # Tropical
-        if koppen in ['Dfc', 'ET']:  # Prevent arctic in tropics
-            return 'Aw'
-    elif 0.25 <= abs_lat < 0.4:  # Subtropical
-        if koppen == 'Af':  # Limit pure tropical
-            return 'Am'
-    elif 0.4 <= abs_lat < 0.6:  # Temperate
-        if koppen == 'Aw':
-            return 'Cwa'  # Transition savanna to monsoon
-    
-    return koppen
-
-def classify_koppen3(pgen_pixel, spacegeo_pixel, elevation, lat_norm):
-    """Improved Köppen classification with better biome handling."""
-    # Skip ocean pixels
-    if tuple(spacegeo_pixel) == (76, 102, 178):
-        return 'Ocean'
-    
-    abs_lat = abs(lat_norm)  # 0=equator, 1=pole
-    
-    # Get biomes from both maps
-    pgen_biome = get_biome(pgen_pixel, PGEN_COLORS)
-    spacegeo_biome = get_biome(spacegeo_pixel, SPACEGEO_COLORS)
-    
-    # ===== Elevation Overrides =====
-    if elevation > 0.8:  # High mountains
-        return 'EF' if (elevation > 0.9 or pgen_biome == 'Ice') else 'ET'
-    
-    # ===== Special Biome Combinations =====
-    # Handle Tropical Dry Forest + Temperate Seasonal Forest case
-    if (pgen_biome == 'Tropical Dry Forest' and 
-        spacegeo_biome == 'Temperate Seasonal Forest'):
-        if abs_lat < 0.4:  # Lower latitudes
-            return 'Aw' if elevation < 0.5 else 'Cwa'
-        else:  # Mid-latitudes (Ferrel cell)
-            return 'Cfa' if elevation < 0.6 else 'Cfb'
-    
-    # ===== Primary Biome Classification =====
-    # Handle cases where spacegeo has more specific biome info
-    if spacegeo_biome == 'Tropical Rainforest':
-        return 'Af' if abs_lat < 0.3 else 'Cfb'
-    elif spacegeo_biome == 'Tropical Dry Forest':
-        return 'Am' if abs_lat < 0.15 else 'Aw'
-    elif spacegeo_biome == 'Savanna':
-        return 'Aw'
-    elif spacegeo_biome == 'Subtropical Desert':
-        return 'BWh'
-    
-    # Handle pgen biomes
-    if pgen_biome == 'Savanna':
-        return 'Aw'
-    elif pgen_biome == 'Grasslands':
-        if abs_lat < 0.3:
-            return 'Aw'  # Tropical grassland -> savanna
-        else:
-            return 'BSk'  # Temperate grassland -> cold steppe
-    elif pgen_biome == 'Desert':
-        if abs_lat < 0.35:
-            return 'BWh'  # Hot desert in tropics/subtropics
-        else:
-            return 'BWk'  # Cold desert in temperate zones
-    elif pgen_biome == 'Xeric Shrubland':
-        return 'BSh'
-    elif pgen_biome == 'Tropical Dry Forest':
-        return 'Aw' if abs_lat < 0.4 else 'Cwa'  # Modified transition
-    elif pgen_biome == 'Temperate Forest':
-        return 'Cfb' if abs_lat < 0.5 else 'Dfb'
-    elif pgen_biome == 'Temperate Rainforest':
-        return 'Cfb'
-    elif pgen_biome == 'Taiga / Boreal Forest':
-        return 'Dfc'
-    elif pgen_biome == 'Tundra':
-        return 'ET'
-    elif pgen_biome == 'Ice':
-        return 'EF'
-    
-    # ===== Fallback Rules =====
-    # If we still haven't classified, use latitude-based defaults
-    if abs_lat < 0.25:  # Tropical
-        return 'Aw'  # Default to savanna in tropics
-    elif abs_lat < 0.45:  # Subtropical
-        return 'Cfa'  # Default to humid subtropical
-    elif abs_lat < 0.65:  # Temperate
-        return 'Dfb'  # Default to warm-summer humid continental
-    else:  # Polar
-        return 'ET'  # Default to tundra
-
-def classify_koppen2(pgen_pixel, spacegeo_pixel, elevation, lat_norm):
-    """Improved Köppen classification with better biome handling."""
-    # Skip ocean pixels
-    if tuple(spacegeo_pixel) == (76, 102, 178):
-        return 'Ocean'
-    
-    abs_lat = abs(lat_norm)  # 0=equator, 1=pole
-    
-    # Get biomes from both maps
-    pgen_biome = get_biome(pgen_pixel, PGEN_COLORS)
-    spacegeo_biome = get_biome(spacegeo_pixel, SPACEGEO_COLORS)
-    
-    # ===== Elevation Overrides =====
-    if elevation > 0.8:  # High mountains
-        return 'EF' if (elevation > 0.9 or pgen_biome == 'Ice') else 'ET'
-    
-    # ===== Primary Biome Classification =====
-    # Handle cases where spacegeo has more specific biome info
-    if spacegeo_biome == 'Tropical Rainforest':
-        return 'Af' if abs_lat < 0.3 else 'Cfb'
-    elif spacegeo_biome == 'Tropical Dry Forest':
-        return 'Am' if abs_lat < 0.15 else 'Aw'
-    elif spacegeo_biome == 'Savanna':
-        return 'Aw'
-    elif spacegeo_biome == 'Subtropical Desert':
-        return 'BWh'
-    
-    # Handle pgen biomes
-    if pgen_biome == 'Savanna':
-        return 'Aw'
-    elif pgen_biome == 'Grasslands':
-        if abs_lat < 0.3:
-            return 'Aw'  # Tropical grassland -> savanna
-        else:
-            return 'BSk'  # Temperate grassland -> cold steppe
-    elif pgen_biome == 'Desert':
-        if abs_lat < 0.35:
-            return 'BWh'  # Hot desert in tropics/subtropics
-        else:
-            return 'BWk'  # Cold desert in temperate zones
-    elif pgen_biome == 'Xeric Shrubland':
-        return 'BSh'
-    elif pgen_biome == 'Tropical Dry Forest':
-        return 'Aw'
-    elif pgen_biome == 'Temperate Forest':
-        return 'Cfb' if abs_lat < 0.5 else 'Dfb'
-    elif pgen_biome == 'Temperate Rainforest':
-        return 'Cfb'
-    elif pgen_biome == 'Taiga / Boreal Forest':
-        return 'Dfc'
-    elif pgen_biome == 'Tundra':
-        return 'ET'
-    elif pgen_biome == 'Ice':
-        return 'EF'
-    
-    # ===== Fallback Rules =====
-    # If we still haven't classified, use latitude-based defaults
-    if abs_lat < 0.25:  # Tropical
-        return 'Aw'  # Default to savanna in tropics
-    elif abs_lat < 0.45:  # Subtropical
-        return 'Cfa'  # Default to humid subtropical
-    elif abs_lat < 0.65:  # Temperate
-        return 'Dfb'  # Default to warm-summer humid continental
-    else:  # Polar
-        return 'ET'  # Default to tundra
-
-def classify_koppen0(pgen_pixel, spacegeo_pixel, elevation, lat_norm):
-    """Classify a pixel into Köppen climate with improved latitude controls."""
-    # Skip ocean pixels
-    if tuple(spacegeo_pixel) == (76, 102, 178):
-        return 'Ocean'
-    
-    # Get absolute latitude (0 at equator, 1 at poles)
-    abs_lat = abs(lat_norm)
-    
-    # Get biomes from both maps
-    pgen_biome = get_biome(pgen_pixel, PGEN_COLORS)
-    spacegeo_biome = get_biome(spacegeo_pixel, SPACEGEO_COLORS)
-    
-    # Elevation override (alpine climates)
-    if elevation > 0.8:  # Highest 20% of elevation
-        if pgen_biome in ['Ice', 'Tundra']:
-            return 'EF'
-        return 'ET'
-    
-    # Merge biome priorities
-    final_biome = pgen_biome
-    if spacegeo_biome in ['Temperate Rainforest', 'Tropical Rainforest']:
-        final_biome = spacegeo_biome
-    
-    # Köppen base class with latitude adjustments
-    koppen = BIOME_TO_KOPPEN.get(final_biome, 'BSk')
-    
-    # ===== Enhanced Latitude Controls =====
-    # Tropical Zone (0-23.5°)
-    if abs_lat < 0.26:  # ~23.5° normalized
-        if koppen in ['Af', 'Am', 'Aw']:
-            pass  # Keep tropical classifications
-        elif koppen == 'BWh':
-            koppen = 'Aw' if elevation < 0.3 else 'Cwa'  # Transition to savanna/monsoon
-        elif koppen == 'Cfa':
-            koppen = 'Af' if elevation < 0.2 else 'Cwa'  # Force tropical if near equator
-    
-    # Subtropical Zone (23.5-35°)
-    elif 0.26 <= abs_lat < 0.39:
-        if koppen == 'Af':
-            koppen = 'Am'  # Tropical monsoon more likely
-        elif koppen == 'Cfb':
-            koppen = 'Cfa'  # Humid subtropical more likely
-    
-    # Temperate Zone (35-55°)
-    elif 0.39 <= abs_lat < 0.61:
-        if koppen in ['Af', 'Am']:
-            koppen = 'Cfa'  # Cannot have true tropics here
-        elif koppen == 'Aw':
-            koppen = 'Cwa'  # Transition to monsoon-influenced
-        elif koppen == 'BWh':
-            koppen = 'BSk'  # Desert becomes steppe
-    
-    # Boreal Zone (55-66.5°)
-    elif 0.61 <= abs_lat < 0.74:
-        if koppen in ['Cfa', 'Cfb']:
-            koppen = 'Dfb'  # Transition to continental
-        elif koppen == 'BSh':
-            koppen = 'Dfc'  # Dry areas become subarctic
-    
-    # Arctic Zone (>66.5°)
-    else:
-        if koppen not in ['ET', 'EF', 'Dfc', 'Dfd']:
-            koppen = 'ET'  # Force tundra/ice cap
-    
-    # Special case for rainforests outside tropics
-    if final_biome == 'Tropical Rainforest' and abs_lat > 0.3:
-        koppen = 'Cfb' if elevation < 0.4 else 'Dfb'
-    
-    return koppen
-
-def classify_koppen1(pgen_pixel, spacegeo_pixel, elevation, lat_norm):
-    """Simplified Köppen classification using only biome maps and elevation."""
-    # Skip ocean pixels
-    if tuple(spacegeo_pixel) == (76, 102, 178):
-        return 'Ocean'
-    
-    abs_lat = abs(lat_norm)  # 0=equator, 1=pole
-    
-    # Get biomes from both maps
-    pgen_biome = get_biome(pgen_pixel, PGEN_COLORS)
-    spacegeo_biome = get_biome(spacegeo_pixel, SPACEGEO_COLORS)
-    
-    # ===== Elevation Overrides =====
-    if elevation > 0.8:  # High mountains
-        return 'EF' if (elevation > 0.9 or pgen_biome == 'Ice') else 'ET'
-    
-    # ===== Climate Zone Determination =====
-    # Tropical Zone (0-20°)
-    if abs_lat < 0.22:
-        if spacegeo_biome == 'Tropical Rainforest':
-            return 'Af'
-        elif spacegeo_biome == 'Tropical Dry Forest':
-            return 'Am' if abs_lat < 0.15 else 'Aw'
-        elif pgen_biome in ['Savanna', 'Grasslands']:
-            return 'Aw'
-        elif pgen_biome == 'Desert':
-            return 'BWh'
-    
-    # Subtropical Zone (20-35°)
-    elif 0.22 <= abs_lat < 0.39:
-        if pgen_biome == 'Xeric Shrubland':
-            return 'BSh'
-        elif spacegeo_biome in ['Temperate Seasonal Forest', 'Temperate Rainforest']:
-            return 'Cfa'
-        elif pgen_biome == 'Grasslands':
-            return 'BSk'
-        elif pgen_biome == 'Desert':
-            return 'BWh' if elevation < 0.5 else 'BWk'
-    
-    # Temperate Zone (35-55°)
-    elif 0.39 <= abs_lat < 0.61:
-        if spacegeo_biome == 'Temperate Rainforest':
-            return 'Cfb'
-        elif pgen_biome in ['Taiga / Boreal Forest', 'Temperate Forest']:
-            return 'Dfa' if abs_lat < 0.5 else 'Dfb'
-        elif pgen_biome == 'Desert':
-            return 'BWk'
-    
-    # Boreal Zone (55-66.5°)
-    elif 0.61 <= abs_lat < 0.74:
-        if pgen_biome == 'Taiga / Boreal Forest':
-            return 'Dfc'
-        elif pgen_biome == 'Tundra':
-            return 'ET'
-    
-    # Polar Zone (>66.5°)
-    else:
-        return 'EF' if pgen_biome == 'Ice' else 'ET'
-    
-    # ===== Fallback Classification =====
-    return BIOME_TO_KOPPEN.get(
-        spacegeo_biome if spacegeo_biome in ['Tropical Rainforest', 'Temperate Rainforest'] 
-        else pgen_biome, 
-        'Cfb'  # Default to oceanic climate
-    )
 
 def validate_map_dimensions(pgen, spacegeo, heightmap):
     """Validate that all maps have compatible dimensions."""
