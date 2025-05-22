@@ -4,7 +4,6 @@ from PIL import Image
 from tqdm import tqdm
 from pathlib import Path
 from functools import lru_cache
-import math
 
 from biome_arrange_constants import *
 
@@ -17,6 +16,10 @@ def closest_color(pixel_tuple, color_map_name):
     """
     # Select the appropriate color map
     color_map = PGEN_COLORS if color_map_name == "pgen" else SPACEGEO_COLORS
+
+    # First check for exact match
+    if pixel_tuple in color_map:
+        return pixel_tuple
     
     # Convert to numpy arrays for vectorized calculation
     pixel_array = np.array(pixel_tuple, dtype=np.int16)
@@ -59,34 +62,49 @@ def load_koppen_matrix(filepath):
     
     return matrix
 
-# Load the matrix at module level (will be initialized once)
-KOPPEN_MATRIX = load_koppen_matrix("koppen_matrix.csv")
-
 def parse_koppen_rule(rule_str, elev=None, lat=None):
+    """Improved rule parser with better condition handling"""
     if not rule_str or rule_str == "-":
         return None
     
-    # Context with allowed variables/functions
-    context = {
-        'elev': elev,
-        'lat': lat,
-        'sqrt': math.sqrt,
-        'log': math.log
-    }
+    # Handle simple cases first
+    if "(" not in rule_str and "|" not in rule_str:
+        return rule_str.strip()
     
+    # Process OR conditions
     for option in rule_str.split("|"):
         option = option.strip()
         
-        if "if" not in option:  # Default case
+        # Unconditional case
+        if "(" not in option:
             return option.split()[0]
             
-        koppen_class, condition = option.split("if")
-        koppen_class = koppen_class.strip()
-        condition = condition.replace(")", "").strip()
-        
+        # Parse condition
         try:
-            if eval(condition, {}, context):  # Safe eval with no builtins
-                return koppen_class
+            koppen_class, condition = option.split("(")
+            koppen_class = koppen_class.strip()
+            condition = condition.replace(")", "").strip()
+            
+            # Evaluate condition safely
+            if "elev" in condition:
+                var = elev
+            elif "lat" in condition:
+                var = lat
+            else:
+                continue
+                
+            # Extract operator and value
+            for op in [">=", "<=", ">", "<"]:
+                if op in condition:
+                    val = float(condition.split(op)[1])
+                    if op == ">=" and var >= val:
+                        return koppen_class
+                    elif op == "<=" and var <= val:
+                        return koppen_class
+                    elif op == ">" and var > val:
+                        return koppen_class
+                    elif op == "<" and var < val:
+                        return koppen_class
         except:
             continue
     
@@ -97,7 +115,7 @@ def classify_koppen(pgen_pixel, spacegeo_pixel, elevation, lat_norm):
     # Skip ocean pixels
     if (tuple(spacegeo_pixel) == (76, 102, 178) or 
         tuple(pgen_pixel) == (76, 102, 178) or
-        elevation < 127):
+        elevation < 124):
         return 'Ocean'
     
     # Get normalized elevation (0-1)
@@ -179,6 +197,7 @@ def generate_koppen_map(pgen_path, spacegeo_path, heightmap_path, output_path, l
     # Process each pixel with progress bar
     for y in tqdm(range(height), desc="Processing rows", unit="row"):
         for x in range(width):
+
             # Skip ocean pixels
             if np.array_equal(spacegeo[y, x], OCEAN_COLOR):
                 continue
@@ -477,13 +496,15 @@ def analyze_koppen_distributions(koppen_path, heightmap_path, lat_range=(-90, 90
 # ===== CLI =====
 if __name__ == "__main__":
     # Default file paths
-    MAIN_WDIR = Path(r"D:\DND\Realistic DND World Gen\renders")
-    DEFAULT_PGEN = MAIN_WDIR / "climate.bmp"
-    DEFAULT_SPACEGEO = MAIN_WDIR / "canvas tuned.png"
-    DEFAULT_HEIGHTMAP = MAIN_WDIR / "greyscale tuned.bmp"
-    DEFAULT_OUTPUT = MAIN_WDIR / "koppen tuned.bmp"
-    FPATH_AN_INPUT_BIOMECOMBS = MAIN_WDIR / "analysis-biomecombs.txt"
-    FPATH_AN_RESULT_DISTRIBUTIONS = MAIN_WDIR / "analysis-distributions.txt"
+    MAIN_WDIR = Path(r"D:\DND\Realistic DND World Gen")
+    DEFAULT_PGEN = MAIN_WDIR / "renders" / "climate.bmp"
+    DEFAULT_SPACEGEO = MAIN_WDIR / "renders" / "canvas tuned.png"
+    DEFAULT_HEIGHTMAP = MAIN_WDIR / "renders" / "greyscale tuned.bmp"
+    DEFAULT_OUTPUT = MAIN_WDIR / "climate" / "koppen tuned.bmp"
+    FPATH_AN_INPUT_BIOMECOMBS = MAIN_WDIR / "climate" / "analysis-biomecombs.txt"
+    FPATH_AN_RESULT_DISTRIBUTIONS = MAIN_WDIR / "climate" / "analysis-distributions.txt"
+    # Load the matrix (will be initialized once)
+    KOPPEN_MATRIX = load_koppen_matrix(MAIN_WDIR / "climate" / "koppen_matrix.csv")
 
     parser = argparse.ArgumentParser(
         description="Generate a Köppen map for a fantasy planet based on inputs from Planet Generator and Space Geometrian.",
