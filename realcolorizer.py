@@ -463,107 +463,20 @@ def generate_all_months(koppen_map_path, heightmap_path, output_dir, add_variati
     output_dir = Path(output_dir)
     output_dir.mkdir(exist_ok=True, parents=True)
 
-    # Load color data
-    if json_path:
-        print("Loading realistic Earth biome colors from JSON...")
-        colors = load_color_data(json_path)
-    else:
-        print("No color data provided, using fallback colors")
-        colors = {}
-
-    # Load maps
-    koppen_img = np.array(Image.open(koppen_map_path))
-    heightmap = np.array(Image.open(heightmap_path).convert('L')) / 255.0
-    height, width = heightmap.shape
-
-    # Generate each month
+    # Generate each month using the optimized function
     for month in ["jan", "apr", "jul", "oct"]:
         output_path = output_dir / f"realistic_biomes_{month}.png"
-        realistic_img = np.zeros((height, width, 3), dtype=np.uint8)
-
-        missing_classes = set()
-        missing_months = set()
-
-        with tqdm(total=height*width, desc=f"Generating {month} map") as pbar:
-            for y in range(height):
-                # Determine month based on hemisphere
-                current_month = get_season_by_hemisphere(y, height, month)
-
-                for x in range(width):
-                    # Get Köppen class
-                    pixel_tuple = tuple(koppen_img[y, x])
-                    koppen_class = COLOR_TO_KOPPEN.get(pixel_tuple, 'Ocean')
-
-                    # Skip ocean processing if requested
-                    if skip_ocean and koppen_class == 'Ocean':
-                        # Keep original ocean color
-                        realistic_img[y, x] = koppen_img[y, x]
-                        pbar.update(1)
-                        continue
-
-                    # Get base color for this biome + month
-                    if koppen_class == 'Ocean':
-                        # Ocean blues vary by depth
-                        depth_factor = max(0.3, 1.0 + heightmap[y, x] * 1.5)
-                        base_color = np.array([
-                            int(20 * depth_factor),
-                            int(100 * depth_factor),
-                            int(200 * depth_factor)
-                        ])
-                    else:
-                        # Land biomes
-                        try:
-                            base_color = np.array(
-                                colors[koppen_class][current_month])
-                        except (KeyError, TypeError) as e:
-                            # Track missing data
-                            if koppen_class not in colors:
-                                missing_classes.add(koppen_class)
-                            elif current_month not in colors[koppen_class]:
-                                missing_months.add(
-                                    f"{koppen_class}:{current_month}")
-                            else:
-                                missing_classes.add(
-                                    f"ERROR:{koppen_class}:{str(e)}")
-
-                            base_color = np.array(
-                                [120, 100, 60])  # Fallback color
-
-                    # Apply elevation shading
-                    elev_factor = 0.85 + (heightmap[y, x] * 0.3)
-                    shaded_color = base_color * elev_factor
-
-                    # Add slight noise for natural variation
-                    if koppen_class != 'Ocean' and add_variation:
-                        color_noise = np.random.randint(-3, 4, size=3)
-                        final_color = np.clip(
-                            shaded_color + color_noise, 0, 255)
-                    else:
-                        final_color = shaded_color
-
-                    # Apply saturation boost to land areas
-                    if koppen_class != 'Ocean':
-                        hsv = rgb_to_hsv(final_color/255.0)
-                        hsv[1] = min(1.0, hsv[1]*1.3)
-                        final_color = hsv_to_rgb(hsv)*255
-
-                    realistic_img[y, x] = final_color.astype(np.uint8)
-                    pbar.update(1)
-
-        # Save missing data to file
-        if missing_classes or missing_months:
-            missing_file = output_dir / f"missing_color_data_{month}.txt"
-            with open(missing_file, "w") as f:
-                if missing_classes:
-                    f.write("Missing Köppen classes:\n")
-                    f.write("\n".join(sorted(missing_classes)) + "\n\n")
-                if missing_months:
-                    f.write("Missing month data (format: KöppenClass:Month):\n")
-                    f.write("\n".join(sorted(missing_months)) + "\n")
-
-        # Save output
-        Image.fromarray(realistic_img).save(output_path)
-        print(f"\n✓ Realistic {month} biome map saved to {output_path}")
+        print(f"\nGenerating {month} map...")
+        apply_realistic_colors_optimized(
+            koppen_map_path,
+            heightmap_path,
+            output_path,
+            month=month,
+            add_variation=add_variation,
+            json_path=json_path,
+            skip_ocean=skip_ocean
+        )
+        print(f"✓ Realistic {month} biome map saved to {output_path}")
 
 
 if __name__ == "__main__":
