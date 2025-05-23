@@ -150,15 +150,48 @@ def apply_realistic_colors_optimized(koppen_map_path, heightmap_path, output_pat
     # Precompute numerical month indices
     current_month_num = MONTH_TO_NUM[month.lower()[:3]]
     y_coords = np.arange(height)
-    northern_mask = y_coords < height // 2
+    equator_y = height // 2
 
-    # Create month map for each pixel
+    # Create month map and transition weights for each pixel
     month_map = np.zeros((height, width), dtype=np.int32)
+    transition_weights = np.zeros((height, width), dtype=np.float32)
+
+    # Define transition zones (in pixels from equator)
+    tropical_zone = height * 0.1  # 10% of height for tropical zone
+    transition_zone = height * 0.2  # 20% of height for transition zone
+
+    # Vectorized distance calculation
+    distances = np.abs(y_coords - equator_y)
+
+    # Vectorized zone assignment
+    tropical_mask = distances < tropical_zone
+    transition_mask = (distances >= tropical_zone) & (
+        distances < tropical_zone + transition_zone)
+    seasonal_mask = distances >= tropical_zone + transition_zone
+
+    # Set month indices
+    month_map[tropical_mask] = -1
+    month_map[transition_mask & (y_coords < equator_y)] = current_month_num
+    month_map[transition_mask & (y_coords >= equator_y)] = (
+        current_month_num + 2) % 4
+    month_map[seasonal_mask & (y_coords < equator_y)] = current_month_num
+    month_map[seasonal_mask & (y_coords >= equator_y)] = (
+        current_month_num + 2) % 4
+
+    # Set transition weights
+    transition_weights[tropical_mask] = 0.5
+
+    # Calculate transition factors for each row
+    transition_factors = np.zeros(height, dtype=np.float32)
+    transition_factors[transition_mask] = (
+        distances[transition_mask] - tropical_zone) / transition_zone
+
+    # Apply transition weights row by row
     for y in range(height):
-        if northern_mask[y]:
-            month_map[y, :] = current_month_num
-        else:
-            month_map[y, :] = (current_month_num + 2) % 4
+        if transition_mask[y]:
+            transition_weights[y, :] = 0.5 * (1 - transition_factors[y])
+
+    transition_weights[seasonal_mask] = 0.0
 
     # Process ocean first
     if not skip_ocean and OCEAN_COLOR is not None:
@@ -185,9 +218,36 @@ def apply_realistic_colors_optimized(koppen_map_path, heightmap_path, output_pat
         if not np.any(class_mask):
             continue
 
-        # Get month indices for masked pixels
+        # Get month indices and weights for masked pixels
         masked_month_indices = month_map[class_mask]
-        base_colors = color_array[masked_month_indices]
+        masked_weights = transition_weights[class_mask]
+
+        # Precompute average color
+        avg_color = np.mean(color_array, axis=0)
+
+        # Initialize base colors array
+        base_colors = np.zeros((np.sum(class_mask), 3), dtype=np.float32)
+
+        # Process tropical zones (month_idx = -1)
+        tropical_pixels = masked_month_indices == -1
+        if np.any(tropical_pixels):
+            base_colors[tropical_pixels] = avg_color
+
+        # Process seasonal zones
+        seasonal_pixels = ~tropical_pixels
+        if np.any(seasonal_pixels):
+            # Get seasonal colors
+            seasonal_indices = masked_month_indices[seasonal_pixels]
+            seasonal_colors = color_array[seasonal_indices]
+
+            # Get weights for blending
+            weights = masked_weights[seasonal_pixels, np.newaxis]
+
+            # Blend seasonal and average colors
+            base_colors[seasonal_pixels] = (
+                seasonal_colors * (1 - weights) +
+                avg_color * weights
+            )
 
         # Elevation effects
         heights = heightmap[class_mask]
