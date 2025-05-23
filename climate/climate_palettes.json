@@ -1,0 +1,6642 @@
+{
+  "metadata": {
+    "koppen_map": "D:\\DND\\Realistic DND World Gen\\earth\\Koppen-Geiger_Map_v2_World_1991\u20132020.svg.png",
+    "elevation_map": "D:\\DND\\Realistic DND World Gen\\earth\\srtm_ramp2.world.5400x2700.jpg",
+    "monthly_maps": [
+      "jan:D:\\DND\\Realistic DND World Gen\\earth\\world.200401.3x5400x2700.jpg",
+      "apr:D:\\DND\\Realistic DND World Gen\\earth\\world.200404.3x5400x2700.jpg",
+      "jul:D:\\DND\\Realistic DND World Gen\\earth\\world.200407.3x5400x2700.jpg",
+      "oct:D:\\DND\\Realistic DND World Gen\\earth\\world.200410.3x5400x2700.jpg"
+    ],
+    "date_generated": "2025-05-22T15:30:57",
+    "color_tolerance": 15,
+    "sample_size": 500,
+    "season_mapping": {
+      "north": {
+        "winter": [
+          "dec",
+          "jan",
+          "feb"
+        ],
+        "spring": [
+          "mar",
+          "apr",
+          "may"
+        ],
+        "summer": [
+          "jun",
+          "jul",
+          "aug"
+        ],
+        "fall": [
+          "sep",
+          "oct",
+          "nov"
+        ]
+      },
+      "south": {
+        "summer": [
+          "dec",
+          "jan",
+          "feb"
+        ],
+        "fall": [
+          "mar",
+          "apr",
+          "may"
+        ],
+        "winter": [
+          "jun",
+          "jul",
+          "aug"
+        ],
+        "spring": [
+          "sep",
+          "oct",
+          "nov"
+        ]
+      },
+      "tropical": {
+        "dry": [
+          "jan",
+          "feb",
+          "mar",
+          "apr",
+          "may",
+          "jun",
+          "jul",
+          "aug",
+          "sep",
+          "oct",
+          "nov",
+          "dec"
+        ],
+        "wet": [
+          "jan",
+          "feb",
+          "mar",
+          "apr",
+          "may",
+          "jun",
+          "jul",
+          "aug",
+          "sep",
+          "oct",
+          "nov",
+          "dec"
+        ]
+      }
+    }
+  },
+  "monthly_colors": {
+    "ET": {
+      "jan": {
+        "mean": [
+          205,
+          205,
+          199
+        ],
+        "median": [
+          241,
+          246,
+          249
+        ],
+        "std": [
+          61,
+          66,
+          76
+        ],
+        "p25": [
+          162,
+          148,
+          131
+        ],
+        "p75": [
+          249,
+          252,
+          253
+        ],
+        "elevation_colors": {
+          "low": [
+            229,
+            233,
+            235
+          ],
+          "mid": [
+            150,
+            140,
+            121
+          ],
+          "high": [
+            145,
+            130,
+            105
+          ]
+        },
+        "sample_count": 469,
+        "tropical": false
+      },
+      "apr": {
+        "mean": [
+          203,
+          200,
+          193
+        ],
+        "median": [
+          243,
+          245,
+          245
+        ],
+        "std": [
+          62,
+          67,
+          78
+        ],
+        "p25": [
+          148,
+          132,
+          111
+        ],
+        "p75": [
+          247,
+          249,
+          250
+        ],
+        "elevation_colors": {
+          "low": [
+            229,
+            231,
+            231
+          ],
+          "mid": [
+            136,
+            125,
+            102
+          ],
+          "high": [
+            137,
+            121,
+            93
+          ]
+        },
+        "sample_count": 469,
+        "tropical": false
+      },
+      "jul": {
+        "mean": [
+          141,
+          137,
+          120
+        ],
+        "median": [
+          131,
+          120,
+          95
+        ],
+        "std": [
+          66,
+          69,
+          79
+        ],
+        "p25": [
+          81,
+          76,
+          48
+        ],
+        "p75": [
+          207,
+          207,
+          202
+        ],
+        "elevation_colors": {
+          "low": [
+            149,
+            149,
+            138
+          ],
+          "mid": [
+            113,
+            104,
+            75
+          ],
+          "high": [
+            119,
+            106,
+            76
+          ]
+        },
+        "sample_count": 467,
+        "tropical": false
+      },
+      "oct": {
+        "mean": [
+          193,
+          194,
+          188
+        ],
+        "median": [
+          226,
+          232,
+          234
+        ],
+        "std": [
+          59,
+          65,
+          76
+        ],
+        "p25": [
+          146,
+          131,
+          111
+        ],
+        "p75": [
+          236,
+          243,
+          245
+        ],
+        "elevation_colors": {
+          "low": [
+            217,
+            223,
+            225
+          ],
+          "mid": [
+            134,
+            124,
+            103
+          ],
+          "high": [
+            134,
+            118,
+            92
+          ]
+        },
+        "sample_count": 467,
+        "tropical": false
+      }
+    },
+    "EF": {
+      "jan": {
+        "mean": [
+          176,
+          182,
+          184
+        ],
+        "median": [
+          231,
+          237,
+          240
+        ],
+        "std": [
+          96,
+          93,
+          94
+        ],
+        "p25": [
+          107,
+          106,
+          114
+        ],
+        "p75": [
+          247,
+          251,
+          253
+        ],
+        "elevation_colors": {
+          "low": [
+            174,
+            180,
+            183
+          ],
+          "mid": [
+            239,
+            243,
+            246
+          ],
+          "high": [
+            165,
+            148,
+            128
+          ]
+        },
+        "sample_count": 394,
+        "tropical": false
+      },
+      "apr": {
+        "mean": [
+          176,
+          181,
+          183
+        ],
+        "median": [
+          233,
+          237,
+          240
+        ],
+        "std": [
+          96,
+          93,
+          94
+        ],
+        "p25": [
+          107,
+          104,
+          107
+        ],
+        "p75": [
+          247,
+          248,
+          250
+        ],
+        "elevation_colors": {
+          "low": [
+            174,
+            179,
+            181
+          ],
+          "mid": [
+            245,
+            246,
+            248
+          ],
+          "high": [
+            169,
+            152,
+            134
+          ]
+        },
+        "sample_count": 395,
+        "tropical": false
+      },
+      "jul": {
+        "mean": [
+          153,
+          158,
+          158
+        ],
+        "median": [
+          207,
+          211,
+          215
+        ],
+        "std": [
+          98,
+          96,
+          98
+        ],
+        "p25": [
+          46,
+          53,
+          42
+        ],
+        "p75": [
+          241,
+          243,
+          245
+        ],
+        "elevation_colors": {
+          "low": [
+            151,
+            156,
+            156
+          ],
+          "mid": [
+            243,
+            245,
+            244
+          ],
+          "high": [
+            175,
+            161,
+            146
+          ]
+        },
+        "sample_count": 404,
+        "tropical": false
+      },
+      "oct": {
+        "mean": [
+          169,
+          175,
+          177
+        ],
+        "median": [
+          224,
+          230,
+          234
+        ],
+        "std": [
+          95,
+          92,
+          93
+        ],
+        "p25": [
+          84,
+          96,
+          96
+        ],
+        "p75": [
+          241,
+          245,
+          247
+        ],
+        "elevation_colors": {
+          "low": [
+            167,
+            173,
+            175
+          ],
+          "mid": [
+            240,
+            243,
+            245
+          ],
+          "high": [
+            171,
+            156,
+            137
+          ]
+        },
+        "sample_count": 393,
+        "tropical": false
+      }
+    },
+    "Dfc": {
+      "jan": {
+        "mean": [
+          189,
+          197,
+          203
+        ],
+        "median": [
+          197,
+          207,
+          213
+        ],
+        "std": [
+          43,
+          42,
+          42
+        ],
+        "p25": [
+          163,
+          172,
+          179
+        ],
+        "p75": [
+          225,
+          232,
+          237
+        ],
+        "elevation_colors": {
+          "low": [
+            189,
+            197,
+            203
+          ],
+          "mid": [
+            176,
+            178,
+            174
+          ],
+          "high": null
+        },
+        "sample_count": 500,
+        "tropical": false
+      },
+      "apr": {
+        "mean": [
+          196,
+          197,
+          195
+        ],
+        "median": [
+          212,
+          212,
+          211
+        ],
+        "std": [
+          50,
+          49,
+          52
+        ],
+        "p25": [
+          170,
+          172,
+          169
+        ],
+        "p75": [
+          237,
+          238,
+          237
+        ],
+        "elevation_colors": {
+          "low": [
+            196,
+            198,
+            196
+          ],
+          "mid": [
+            134,
+            132,
+            119
+          ],
+          "high": null
+        },
+        "sample_count": 499,
+        "tropical": false
+      },
+      "jul": {
+        "mean": [
+          40,
+          48,
+          21
+        ],
+        "median": [
+          35,
+          45,
+          17
+        ],
+        "std": [
+          21,
+          18,
+          20
+        ],
+        "p25": [
+          28,
+          38,
+          12
+        ],
+        "p75": [
+          47,
+          51,
+          23
+        ],
+        "elevation_colors": {
+          "low": [
+            40,
+            47,
+            21
+          ],
+          "mid": [
+            47,
+            48,
+            23
+          ],
+          "high": null
+        },
+        "sample_count": 500,
+        "tropical": false
+      },
+      "oct": {
+        "mean": [
+          135,
+          141,
+          139
+        ],
+        "median": [
+          137,
+          143,
+          145
+        ],
+        "std": [
+          73,
+          73,
+          80
+        ],
+        "p25": [
+          66,
+          69,
+          65
+        ],
+        "p75": [
+          208,
+          213,
+          217
+        ],
+        "elevation_colors": {
+          "low": [
+            136,
+            142,
+            140
+          ],
+          "mid": [
+            70,
+            64,
+            50
+          ],
+          "high": null
+        },
+        "sample_count": 500,
+        "tropical": false
+      }
+    },
+    "Dsc": {
+      "jan": {
+        "mean": [
+          210,
+          218,
+          222
+        ],
+        "median": [
+          222,
+          228,
+          233
+        ],
+        "std": [
+          38,
+          36,
+          36
+        ],
+        "p25": [
+          206,
+          214,
+          219
+        ],
+        "p75": [
+          233,
+          239,
+          242
+        ],
+        "elevation_colors": {
+          "low": [
+            210,
+            217,
+            222
+          ],
+          "mid": [
+            231,
+            232,
+            233
+          ],
+          "high": null
+        },
+        "sample_count": 500,
+        "tropical": false
+      },
+      "apr": {
+        "mean": [
+          219,
+          220,
+          219
+        ],
+        "median": [
+          230,
+          231,
+          231
+        ],
+        "std": [
+          36,
+          36,
+          37
+        ],
+        "p25": [
+          217,
+          218,
+          217
+        ],
+        "p75": [
+          239,
+          240,
+          240
+        ],
+        "elevation_colors": {
+          "low": [
+            220,
+            221,
+            220
+          ],
+          "mid": [
+            145,
+            135,
+            115
+          ],
+          "high": null
+        },
+        "sample_count": 499,
+        "tropical": false
+      },
+      "jul": {
+        "mean": [
+          43,
+          50,
+          23
+        ],
+        "median": [
+          38,
+          47,
+          18
+        ],
+        "std": [
+          24,
+          22,
+          24
+        ],
+        "p25": [
+          34,
+          42,
+          15
+        ],
+        "p75": [
+          44,
+          52,
+          22
+        ],
+        "elevation_colors": {
+          "low": [
+            42,
+            50,
+            22
+          ],
+          "mid": [
+            115,
+            100,
+            69
+          ],
+          "high": null
+        },
+        "sample_count": 498,
+        "tropical": false
+      },
+      "oct": {
+        "mean": [
+          178,
+          183,
+          185
+        ],
+        "median": [
+          199,
+          204,
+          208
+        ],
+        "std": [
+          57,
+          57,
+          62
+        ],
+        "p25": [
+          168,
+          173,
+          177
+        ],
+        "p75": [
+          215,
+          221,
+          225
+        ],
+        "elevation_colors": {
+          "low": [
+            179,
+            184,
+            187
+          ],
+          "mid": [
+            110,
+            94,
+            62
+          ],
+          "high": null
+        },
+        "sample_count": 498,
+        "tropical": false
+      }
+    },
+    "Dfd": {
+      "jan": {
+        "mean": [
+          195,
+          202,
+          207
+        ],
+        "median": [
+          192,
+          199,
+          204
+        ],
+        "std": [
+          24,
+          23,
+          23
+        ],
+        "p25": [
+          177,
+          184,
+          190
+        ],
+        "p75": [
+          216,
+          221,
+          226
+        ],
+        "elevation_colors": {
+          "low": [
+            195,
+            202,
+            207
+          ],
+          "mid": null,
+          "high": null
+        },
+        "sample_count": 212,
+        "tropical": false
+      },
+      "apr": {
+        "mean": [
+          198,
+          198,
+          196
+        ],
+        "median": [
+          200,
+          199,
+          197
+        ],
+        "std": [
+          26,
+          27,
+          27
+        ],
+        "p25": [
+          178,
+          177,
+          175
+        ],
+        "p75": [
+          221,
+          221,
+          220
+        ],
+        "elevation_colors": {
+          "low": [
+            198,
+            198,
+            196
+          ],
+          "mid": null,
+          "high": null
+        },
+        "sample_count": 212,
+        "tropical": false
+      },
+      "jul": {
+        "mean": [
+          36,
+          48,
+          17
+        ],
+        "median": [
+          36,
+          48,
+          17
+        ],
+        "std": [
+          8,
+          4,
+          4
+        ],
+        "p25": [
+          30,
+          46,
+          14
+        ],
+        "p75": [
+          41,
+          51,
+          20
+        ],
+        "elevation_colors": {
+          "low": [
+            36,
+            48,
+            17
+          ],
+          "mid": null,
+          "high": null
+        },
+        "sample_count": 212,
+        "tropical": false
+      },
+      "oct": {
+        "mean": [
+          166,
+          170,
+          173
+        ],
+        "median": [
+          169,
+          173,
+          177
+        ],
+        "std": [
+          32,
+          32,
+          33
+        ],
+        "p25": [
+          139,
+          143,
+          145
+        ],
+        "p75": [
+          189,
+          193,
+          196
+        ],
+        "elevation_colors": {
+          "low": [
+            166,
+            170,
+            173
+          ],
+          "mid": null,
+          "high": null
+        },
+        "sample_count": 212,
+        "tropical": false
+      }
+    },
+    "Dwc": {
+      "jan": {
+        "mean": [
+          167,
+          169,
+          170
+        ],
+        "median": [
+          180,
+          184,
+          190
+        ],
+        "std": [
+          49,
+          53,
+          60
+        ],
+        "p25": [
+          137,
+          139,
+          133
+        ],
+        "p75": [
+          202,
+          207,
+          215
+        ],
+        "elevation_colors": {
+          "low": [
+            167,
+            170,
+            173
+          ],
+          "mid": [
+            154,
+            144,
+            128
+          ],
+          "high": null
+        },
+        "sample_count": 499,
+        "tropical": false
+      },
+      "apr": {
+        "mean": [
+          165,
+          163,
+          156
+        ],
+        "median": [
+          181,
+          179,
+          178
+        ],
+        "std": [
+          62,
+          64,
+          71
+        ],
+        "p25": [
+          109,
+          102,
+          88
+        ],
+        "p75": [
+          222,
+          222,
+          221
+        ],
+        "elevation_colors": {
+          "low": [
+            167,
+            166,
+            160
+          ],
+          "mid": [
+            129,
+            115,
+            95
+          ],
+          "high": null
+        },
+        "sample_count": 500,
+        "tropical": false
+      },
+      "jul": {
+        "mean": [
+          41,
+          52,
+          23
+        ],
+        "median": [
+          35,
+          48,
+          17
+        ],
+        "std": [
+          24,
+          21,
+          22
+        ],
+        "p25": [
+          28,
+          43,
+          13
+        ],
+        "p75": [
+          45,
+          54,
+          24
+        ],
+        "elevation_colors": {
+          "low": [
+            39,
+            51,
+            21
+          ],
+          "mid": [
+            68,
+            74,
+            42
+          ],
+          "high": null
+        },
+        "sample_count": 500,
+        "tropical": false
+      },
+      "oct": {
+        "mean": [
+          116,
+          114,
+          106
+        ],
+        "median": [
+          97,
+          91,
+          82
+        ],
+        "std": [
+          66,
+          70,
+          79
+        ],
+        "p25": [
+          55,
+          48,
+          30
+        ],
+        "p75": [
+          182,
+          186,
+          187
+        ],
+        "elevation_colors": {
+          "low": [
+            116,
+            115,
+            108
+          ],
+          "mid": [
+            108,
+            96,
+            75
+          ],
+          "high": null
+        },
+        "sample_count": 500,
+        "tropical": false
+      }
+    },
+    "Dwd": {
+      "jan": {
+        "mean": [
+          217,
+          223,
+          228
+        ],
+        "median": [
+          223,
+          228,
+          234
+        ],
+        "std": [
+          20,
+          18,
+          18
+        ],
+        "p25": [
+          211,
+          217,
+          222
+        ],
+        "p75": [
+          232,
+          237,
+          241
+        ],
+        "elevation_colors": {
+          "low": [
+            217,
+            223,
+            228
+          ],
+          "mid": null,
+          "high": null
+        },
+        "sample_count": 495,
+        "tropical": false
+      },
+      "apr": {
+        "mean": [
+          221,
+          221,
+          221
+        ],
+        "median": [
+          230,
+          230,
+          230
+        ],
+        "std": [
+          23,
+          24,
+          24
+        ],
+        "p25": [
+          218,
+          219,
+          218
+        ],
+        "p75": [
+          236,
+          237,
+          236
+        ],
+        "elevation_colors": {
+          "low": [
+            221,
+            221,
+            221
+          ],
+          "mid": null,
+          "high": null
+        },
+        "sample_count": 495,
+        "tropical": false
+      },
+      "jul": {
+        "mean": [
+          44,
+          52,
+          21
+        ],
+        "median": [
+          43,
+          51,
+          20
+        ],
+        "std": [
+          12,
+          8,
+          9
+        ],
+        "p25": [
+          36,
+          48,
+          16
+        ],
+        "p75": [
+          51,
+          56,
+          26
+        ],
+        "elevation_colors": {
+          "low": [
+            44,
+            52,
+            21
+          ],
+          "mid": null,
+          "high": null
+        },
+        "sample_count": 495,
+        "tropical": false
+      },
+      "oct": {
+        "mean": [
+          202,
+          206,
+          210
+        ],
+        "median": [
+          215,
+          218,
+          222
+        ],
+        "std": [
+          32,
+          32,
+          32
+        ],
+        "p25": [
+          196,
+          199,
+          204
+        ],
+        "p75": [
+          225,
+          229,
+          233
+        ],
+        "elevation_colors": {
+          "low": [
+            202,
+            206,
+            210
+          ],
+          "mid": null,
+          "high": null
+        },
+        "sample_count": 495,
+        "tropical": false
+      }
+    },
+    "BSk": {
+      "jan": {
+        "mean": [
+          155,
+          146,
+          129
+        ],
+        "median": [
+          130,
+          109,
+          77
+        ],
+        "std": [
+          66,
+          72,
+          86
+        ],
+        "p25": [
+          102,
+          85,
+          54
+        ],
+        "p75": [
+          230,
+          230,
+          230
+        ],
+        "elevation_colors": {
+          "low": [
+            156,
+            148,
+            131
+          ],
+          "mid": [
+            139,
+            125,
+            101
+          ],
+          "high": null
+        },
+        "sample_count": 500,
+        "tropical": false
+      },
+      "apr": {
+        "mean": [
+          100,
+          87,
+          58
+        ],
+        "median": [
+          101,
+          88,
+          56
+        ],
+        "std": [
+          26,
+          21,
+          20
+        ],
+        "p25": [
+          80,
+          70,
+          44
+        ],
+        "p75": [
+          118,
+          100,
+          69
+        ],
+        "elevation_colors": {
+          "low": [
+            99,
+            86,
+            57
+          ],
+          "mid": [
+            113,
+            96,
+            65
+          ],
+          "high": null
+        },
+        "sample_count": 500,
+        "tropical": false
+      },
+      "jul": {
+        "mean": [
+          97,
+          87,
+          55
+        ],
+        "median": [
+          97,
+          86,
+          55
+        ],
+        "std": [
+          29,
+          23,
+          21
+        ],
+        "p25": [
+          78,
+          73,
+          42
+        ],
+        "p75": [
+          116,
+          100,
+          66
+        ],
+        "elevation_colors": {
+          "low": [
+            96,
+            86,
+            55
+          ],
+          "mid": [
+            114,
+            97,
+            64
+          ],
+          "high": null
+        },
+        "sample_count": 500,
+        "tropical": false
+      },
+      "oct": {
+        "mean": [
+          99,
+          83,
+          54
+        ],
+        "median": [
+          96,
+          81,
+          51
+        ],
+        "std": [
+          25,
+          21,
+          19
+        ],
+        "p25": [
+          84,
+          71,
+          43
+        ],
+        "p75": [
+          116,
+          94,
+          62
+        ],
+        "elevation_colors": {
+          "low": [
+            98,
+            83,
+            53
+          ],
+          "mid": [
+            109,
+            91,
+            60
+          ],
+          "high": null
+        },
+        "sample_count": 500,
+        "tropical": false
+      }
+    },
+    "Dfb": {
+      "jan": {
+        "mean": [
+          164,
+          167,
+          167
+        ],
+        "median": [
+          171,
+          175,
+          178
+        ],
+        "std": [
+          57,
+          59,
+          63
+        ],
+        "p25": [
+          132,
+          136,
+          137
+        ],
+        "p75": [
+          214,
+          218,
+          221
+        ],
+        "elevation_colors": {
+          "low": [
+            164,
+            167,
+            167
+          ],
+          "mid": null,
+          "high": null
+        },
+        "sample_count": 498,
+        "tropical": false
+      },
+      "apr": {
+        "mean": [
+          94,
+          92,
+          75
+        ],
+        "median": [
+          80,
+          74,
+          53
+        ],
+        "std": [
+          48,
+          48,
+          55
+        ],
+        "p25": [
+          60,
+          58,
+          33
+        ],
+        "p75": [
+          124,
+          124,
+          114
+        ],
+        "elevation_colors": {
+          "low": [
+            94,
+            92,
+            75
+          ],
+          "mid": null,
+          "high": null
+        },
+        "sample_count": 498,
+        "tropical": false
+      },
+      "jul": {
+        "mean": [
+          34,
+          48,
+          16
+        ],
+        "median": [
+          32,
+          48,
+          15
+        ],
+        "std": [
+          13,
+          12,
+          8
+        ],
+        "p25": [
+          24,
+          39,
+          10
+        ],
+        "p75": [
+          44,
+          58,
+          23
+        ],
+        "elevation_colors": {
+          "low": [
+            34,
+            48,
+            16
+          ],
+          "mid": null,
+          "high": null
+        },
+        "sample_count": 498,
+        "tropical": false
+      },
+      "oct": {
+        "mean": [
+          54,
+          54,
+          34
+        ],
+        "median": [
+          50,
+          50,
+          26
+        ],
+        "std": [
+          32,
+          29,
+          30
+        ],
+        "p25": [
+          31,
+          35,
+          14
+        ],
+        "p75": [
+          68,
+          66,
+          43
+        ],
+        "elevation_colors": {
+          "low": [
+            54,
+            54,
+            34
+          ],
+          "mid": null,
+          "high": null
+        },
+        "sample_count": 499,
+        "tropical": false
+      }
+    },
+    "Aw": {
+      "jan": {
+        "mean": [
+          58,
+          62,
+          29
+        ],
+        "median": [
+          55,
+          61,
+          27
+        ],
+        "std": [
+          25,
+          15,
+          16
+        ],
+        "p25": [
+          38,
+          51,
+          17
+        ],
+        "p75": [
+          77,
+          73,
+          39
+        ],
+        "elevation_colors": {
+          "low": [
+            58,
+            62,
+            29
+          ],
+          "mid": null,
+          "high": null
+        },
+        "sample_count": 500,
+        "tropical": true
+      },
+      "apr": {
+        "mean": [
+          60,
+          62,
+          30
+        ],
+        "median": [
+          51,
+          58,
+          25
+        ],
+        "std": [
+          30,
+          19,
+          19
+        ],
+        "p25": [
+          36,
+          48,
+          16
+        ],
+        "p75": [
+          81,
+          76,
+          43
+        ],
+        "elevation_colors": {
+          "low": [
+            60,
+            62,
+            30
+          ],
+          "mid": null,
+          "high": null
+        },
+        "sample_count": 500,
+        "tropical": true
+      },
+      "jul": {
+        "mean": [
+          56,
+          59,
+          27
+        ],
+        "median": [
+          55,
+          58,
+          27
+        ],
+        "std": [
+          22,
+          14,
+          13
+        ],
+        "p25": [
+          37,
+          49,
+          17
+        ],
+        "p75": [
+          72,
+          68,
+          37
+        ],
+        "elevation_colors": {
+          "low": [
+            56,
+            59,
+            27
+          ],
+          "mid": null,
+          "high": null
+        },
+        "sample_count": 500,
+        "tropical": true
+      },
+      "oct": {
+        "mean": [
+          60,
+          63,
+          30
+        ],
+        "median": [
+          58,
+          63,
+          29
+        ],
+        "std": [
+          24,
+          14,
+          15
+        ],
+        "p25": [
+          39,
+          53,
+          18
+        ],
+        "p75": [
+          79,
+          72,
+          41
+        ],
+        "elevation_colors": {
+          "low": [
+            60,
+            63,
+            30
+          ],
+          "mid": null,
+          "high": null
+        },
+        "sample_count": 500,
+        "tropical": true
+      }
+    },
+    "Dsb": {
+      "jan": {
+        "mean": [
+          164,
+          163,
+          157
+        ],
+        "median": [
+          163,
+          166,
+          164
+        ],
+        "std": [
+          59,
+          61,
+          66
+        ],
+        "p25": [
+          115,
+          112,
+          101
+        ],
+        "p75": [
+          225,
+          225,
+          222
+        ],
+        "elevation_colors": {
+          "low": [
+            144,
+            145,
+            140
+          ],
+          "mid": [
+            194,
+            191,
+            182
+          ],
+          "high": null
+        },
+        "sample_count": 256,
+        "tropical": false
+      },
+      "apr": {
+        "mean": [
+          97,
+          92,
+          68
+        ],
+        "median": [
+          91,
+          84,
+          61
+        ],
+        "std": [
+          49,
+          43,
+          44
+        ],
+        "p25": [
+          53,
+          54,
+          32
+        ],
+        "p75": [
+          132,
+          117,
+          86
+        ],
+        "elevation_colors": {
+          "low": [
+            66,
+            67,
+            44
+          ],
+          "mid": [
+            144,
+            132,
+            104
+          ],
+          "high": null
+        },
+        "sample_count": 256,
+        "tropical": false
+      },
+      "jul": {
+        "mean": [
+          79,
+          74,
+          43
+        ],
+        "median": [
+          71,
+          70,
+          38
+        ],
+        "std": [
+          43,
+          31,
+          27
+        ],
+        "p25": [
+          39,
+          44,
+          18
+        ],
+        "p75": [
+          122,
+          104,
+          69
+        ],
+        "elevation_colors": {
+          "low": [
+            52,
+            55,
+            26
+          ],
+          "mid": [
+            121,
+            104,
+            70
+          ],
+          "high": null
+        },
+        "sample_count": 256,
+        "tropical": false
+      },
+      "oct": {
+        "mean": [
+          76,
+          66,
+          39
+        ],
+        "median": [
+          70,
+          60,
+          38
+        ],
+        "std": [
+          44,
+          34,
+          27
+        ],
+        "p25": [
+          32,
+          33,
+          14
+        ],
+        "p75": [
+          121,
+          99,
+          62
+        ],
+        "elevation_colors": {
+          "low": [
+            48,
+            45,
+            23
+          ],
+          "mid": [
+            120,
+            99,
+            65
+          ],
+          "high": null
+        },
+        "sample_count": 256,
+        "tropical": false
+      }
+    },
+    "Cwa": {
+      "jan": {
+        "mean": [
+          59,
+          61,
+          30
+        ],
+        "median": [
+          58,
+          60,
+          30
+        ],
+        "std": [
+          20,
+          16,
+          13
+        ],
+        "p25": [
+          42,
+          48,
+          20
+        ],
+        "p75": [
+          74,
+          74,
+          41
+        ],
+        "elevation_colors": {
+          "low": [
+            59,
+            61,
+            30
+          ],
+          "mid": null,
+          "high": null
+        },
+        "sample_count": 500,
+        "tropical": false
+      },
+      "apr": {
+        "mean": [
+          68,
+          68,
+          37
+        ],
+        "median": [
+          61,
+          63,
+          31
+        ],
+        "std": [
+          30,
+          21,
+          20
+        ],
+        "p25": [
+          44,
+          51,
+          20
+        ],
+        "p75": [
+          93,
+          88,
+          55
+        ],
+        "elevation_colors": {
+          "low": [
+            68,
+            68,
+            37
+          ],
+          "mid": null,
+          "high": null
+        },
+        "sample_count": 500,
+        "tropical": false
+      },
+      "jul": {
+        "mean": [
+          65,
+          67,
+          34
+        ],
+        "median": [
+          59,
+          63,
+          30
+        ],
+        "std": [
+          26,
+          20,
+          18
+        ],
+        "p25": [
+          44,
+          52,
+          21
+        ],
+        "p75": [
+          83,
+          79,
+          45
+        ],
+        "elevation_colors": {
+          "low": [
+            65,
+            67,
+            34
+          ],
+          "mid": null,
+          "high": null
+        },
+        "sample_count": 500,
+        "tropical": false
+      },
+      "oct": {
+        "mean": [
+          63,
+          64,
+          33
+        ],
+        "median": [
+          64,
+          63,
+          33
+        ],
+        "std": [
+          25,
+          17,
+          16
+        ],
+        "p25": [
+          41,
+          51,
+          20
+        ],
+        "p75": [
+          83,
+          78,
+          47
+        ],
+        "elevation_colors": {
+          "low": [
+            63,
+            64,
+            33
+          ],
+          "mid": null,
+          "high": null
+        },
+        "sample_count": 500,
+        "tropical": false
+      }
+    },
+    "Dwb": {
+      "jan": {
+        "mean": [
+          147,
+          139,
+          129
+        ],
+        "median": [
+          148,
+          141,
+          133
+        ],
+        "std": [
+          66,
+          72,
+          80
+        ],
+        "p25": [
+          84,
+          66,
+          50
+        ],
+        "p75": [
+          211,
+          209,
+          209
+        ],
+        "elevation_colors": {
+          "low": [
+            148,
+            140,
+            131
+          ],
+          "mid": [
+            89,
+            73,
+            48
+          ],
+          "high": null
+        },
+        "sample_count": 500,
+        "tropical": false
+      },
+      "apr": {
+        "mean": [
+          91,
+          80,
+          59
+        ],
+        "median": [
+          81,
+          68,
+          47
+        ],
+        "std": [
+          35,
+          34,
+          37
+        ],
+        "p25": [
+          67,
+          57,
+          36
+        ],
+        "p75": [
+          110,
+          93,
+          66
+        ],
+        "elevation_colors": {
+          "low": [
+            91,
+            80,
+            59
+          ],
+          "mid": [
+            93,
+            82,
+            53
+          ],
+          "high": null
+        },
+        "sample_count": 500,
+        "tropical": false
+      },
+      "jul": {
+        "mean": [
+          41,
+          56,
+          21
+        ],
+        "median": [
+          32,
+          52,
+          16
+        ],
+        "std": [
+          23,
+          14,
+          15
+        ],
+        "p25": [
+          26,
+          46,
+          12
+        ],
+        "p75": [
+          52,
+          63,
+          27
+        ],
+        "elevation_colors": {
+          "low": [
+            41,
+            56,
+            21
+          ],
+          "mid": [
+            65,
+            70,
+            37
+          ],
+          "high": null
+        },
+        "sample_count": 500,
+        "tropical": false
+      },
+      "oct": {
+        "mean": [
+          65,
+          54,
+          33
+        ],
+        "median": [
+          63,
+          51,
+          31
+        ],
+        "std": [
+          20,
+          16,
+          14
+        ],
+        "p25": [
+          52,
+          42,
+          24
+        ],
+        "p75": [
+          79,
+          64,
+          43
+        ],
+        "elevation_colors": {
+          "low": [
+            65,
+            54,
+            33
+          ],
+          "mid": [
+            74,
+            67,
+            41
+          ],
+          "high": null
+        },
+        "sample_count": 500,
+        "tropical": false
+      }
+    },
+    "Cwb": {
+      "jan": {
+        "mean": [
+          64,
+          60,
+          32
+        ],
+        "median": [
+          61,
+          60,
+          30
+        ],
+        "std": [
+          20,
+          17,
+          13
+        ],
+        "p25": [
+          50,
+          48,
+          22
+        ],
+        "p75": [
+          76,
+          72,
+          40
+        ],
+        "elevation_colors": {
+          "low": [
+            63,
+            63,
+            31
+          ],
+          "mid": [
+            65,
+            57,
+            32
+          ],
+          "high": null
+        },
+        "sample_count": 500,
+        "tropical": false
+      },
+      "apr": {
+        "mean": [
+          66,
+          61,
+          33
+        ],
+        "median": [
+          65,
+          60,
+          31
+        ],
+        "std": [
+          19,
+          14,
+          13
+        ],
+        "p25": [
+          54,
+          53,
+          23
+        ],
+        "p75": [
+          78,
+          69,
+          42
+        ],
+        "elevation_colors": {
+          "low": [
+            60,
+            58,
+            28
+          ],
+          "mid": [
+            73,
+            65,
+            38
+          ],
+          "high": null
+        },
+        "sample_count": 500,
+        "tropical": false
+      },
+      "jul": {
+        "mean": [
+          65,
+          59,
+          31
+        ],
+        "median": [
+          65,
+          58,
+          30
+        ],
+        "std": [
+          26,
+          15,
+          14
+        ],
+        "p25": [
+          42,
+          49,
+          19
+        ],
+        "p75": [
+          88,
+          71,
+          43
+        ],
+        "elevation_colors": {
+          "low": [
+            76,
+            64,
+            36
+          ],
+          "mid": [
+            53,
+            55,
+            25
+          ],
+          "high": null
+        },
+        "sample_count": 500,
+        "tropical": false
+      },
+      "oct": {
+        "mean": [
+          67,
+          61,
+          34
+        ],
+        "median": [
+          68,
+          63,
+          33
+        ],
+        "std": [
+          27,
+          18,
+          16
+        ],
+        "p25": [
+          43,
+          45,
+          20
+        ],
+        "p75": [
+          90,
+          76,
+          48
+        ],
+        "elevation_colors": {
+          "low": [
+            77,
+            68,
+            40
+          ],
+          "mid": [
+            55,
+            53,
+            26
+          ],
+          "high": null
+        },
+        "sample_count": 500,
+        "tropical": false
+      }
+    },
+    "Dfa": {
+      "jan": {
+        "mean": [
+          125,
+          115,
+          97
+        ],
+        "median": [
+          99,
+          83,
+          55
+        ],
+        "std": [
+          62,
+          67,
+          75
+        ],
+        "p25": [
+          81,
+          68,
+          45
+        ],
+        "p75": [
+          186,
+          181,
+          173
+        ],
+        "elevation_colors": {
+          "low": [
+            125,
+            115,
+            97
+          ],
+          "mid": null,
+          "high": null
+        },
+        "sample_count": 500,
+        "tropical": false
+      },
+      "apr": {
+        "mean": [
+          81,
+          74,
+          46
+        ],
+        "median": [
+          83,
+          75,
+          47
+        ],
+        "std": [
+          19,
+          14,
+          13
+        ],
+        "p25": [
+          64,
+          64,
+          35
+        ],
+        "p75": [
+          96,
+          85,
+          56
+        ],
+        "elevation_colors": {
+          "low": [
+            81,
+            74,
+            46
+          ],
+          "mid": null,
+          "high": null
+        },
+        "sample_count": 500,
+        "tropical": false
+      },
+      "jul": {
+        "mean": [
+          47,
+          61,
+          24
+        ],
+        "median": [
+          45,
+          60,
+          24
+        ],
+        "std": [
+          14,
+          9,
+          9
+        ],
+        "p25": [
+          38,
+          56,
+          19
+        ],
+        "p75": [
+          54,
+          65,
+          29
+        ],
+        "elevation_colors": {
+          "low": [
+            47,
+            61,
+            24
+          ],
+          "mid": null,
+          "high": null
+        },
+        "sample_count": 500,
+        "tropical": false
+      },
+      "oct": {
+        "mean": [
+          69,
+          62,
+          34
+        ],
+        "median": [
+          68,
+          63,
+          35
+        ],
+        "std": [
+          17,
+          12,
+          10
+        ],
+        "p25": [
+          56,
+          54,
+          27
+        ],
+        "p75": [
+          85,
+          72,
+          42
+        ],
+        "elevation_colors": {
+          "low": [
+            69,
+            62,
+            34
+          ],
+          "mid": null,
+          "high": null
+        },
+        "sample_count": 500,
+        "tropical": false
+      }
+    },
+    "BWk": {
+      "jan": {
+        "mean": [
+          145,
+          132,
+          107
+        ],
+        "median": [
+          147,
+          127,
+          92
+        ],
+        "std": [
+          49,
+          51,
+          58
+        ],
+        "p25": [
+          116,
+          97,
+          66
+        ],
+        "p75": [
+          171,
+          157,
+          129
+        ],
+        "elevation_colors": {
+          "low": [
+            144,
+            132,
+            107
+          ],
+          "mid": [
+            152,
+            135,
+            110
+          ],
+          "high": [
+            123,
+            101,
+            73
+          ]
+        },
+        "sample_count": 499,
+        "tropical": false
+      },
+      "apr": {
+        "mean": [
+          126,
+          111,
+          81
+        ],
+        "median": [
+          131,
+          114,
+          84
+        ],
+        "std": [
+          37,
+          32,
+          30
+        ],
+        "p25": [
+          108,
+          91,
+          61
+        ],
+        "p75": [
+          155,
+          135,
+          102
+        ],
+        "elevation_colors": {
+          "low": [
+            125,
+            110,
+            80
+          ],
+          "mid": [
+            141,
+            122,
+            93
+          ],
+          "high": [
+            129,
+            109,
+            77
+          ]
+        },
+        "sample_count": 499,
+        "tropical": false
+      },
+      "jul": {
+        "mean": [
+          126,
+          111,
+          80
+        ],
+        "median": [
+          133,
+          115,
+          84
+        ],
+        "std": [
+          38,
+          32,
+          30
+        ],
+        "p25": [
+          109,
+          96,
+          65
+        ],
+        "p75": [
+          154,
+          133,
+          100
+        ],
+        "elevation_colors": {
+          "low": [
+            125,
+            110,
+            80
+          ],
+          "mid": [
+            138,
+            119,
+            90
+          ],
+          "high": [
+            116,
+            96,
+            66
+          ]
+        },
+        "sample_count": 499,
+        "tropical": false
+      },
+      "oct": {
+        "mean": [
+          127,
+          110,
+          78
+        ],
+        "median": [
+          129,
+          110,
+          77
+        ],
+        "std": [
+          34,
+          30,
+          28
+        ],
+        "p25": [
+          111,
+          93,
+          60
+        ],
+        "p75": [
+          151,
+          132,
+          97
+        ],
+        "elevation_colors": {
+          "low": [
+            126,
+            109,
+            77
+          ],
+          "mid": [
+            138,
+            118,
+            89
+          ],
+          "high": [
+            126,
+            103,
+            73
+          ]
+        },
+        "sample_count": 499,
+        "tropical": false
+      }
+    },
+    "Dwa": {
+      "jan": {
+        "mean": [
+          120,
+          105,
+          83
+        ],
+        "median": [
+          106,
+          87,
+          59
+        ],
+        "std": [
+          50,
+          54,
+          60
+        ],
+        "p25": [
+          91,
+          73,
+          48
+        ],
+        "p75": [
+          130,
+          109,
+          85
+        ],
+        "elevation_colors": {
+          "low": [
+            120,
+            105,
+            83
+          ],
+          "mid": null,
+          "high": null
+        },
+        "sample_count": 490,
+        "tropical": false
+      },
+      "apr": {
+        "mean": [
+          96,
+          82,
+          55
+        ],
+        "median": [
+          98,
+          84,
+          56
+        ],
+        "std": [
+          21,
+          17,
+          15
+        ],
+        "p25": [
+          83,
+          71,
+          46
+        ],
+        "p75": [
+          110,
+          95,
+          65
+        ],
+        "elevation_colors": {
+          "low": [
+            96,
+            82,
+            55
+          ],
+          "mid": null,
+          "high": null
+        },
+        "sample_count": 490,
+        "tropical": false
+      },
+      "jul": {
+        "mean": [
+          59,
+          66,
+          33
+        ],
+        "median": [
+          54,
+          63,
+          29
+        ],
+        "std": [
+          22,
+          15,
+          15
+        ],
+        "p25": [
+          43,
+          56,
+          22
+        ],
+        "p75": [
+          71,
+          75,
+          41
+        ],
+        "elevation_colors": {
+          "low": [
+            59,
+            66,
+            33
+          ],
+          "mid": null,
+          "high": null
+        },
+        "sample_count": 490,
+        "tropical": false
+      },
+      "oct": {
+        "mean": [
+          76,
+          67,
+          39
+        ],
+        "median": [
+          78,
+          68,
+          39
+        ],
+        "std": [
+          19,
+          15,
+          12
+        ],
+        "p25": [
+          65,
+          58,
+          31
+        ],
+        "p75": [
+          88,
+          76,
+          47
+        ],
+        "elevation_colors": {
+          "low": [
+            76,
+            67,
+            39
+          ],
+          "mid": null,
+          "high": null
+        },
+        "sample_count": 491,
+        "tropical": false
+      }
+    },
+    "Csb": {
+      "jan": {
+        "mean": [
+          55,
+          52,
+          27
+        ],
+        "median": [
+          49,
+          49,
+          24
+        ],
+        "std": [
+          29,
+          21,
+          18
+        ],
+        "p25": [
+          32,
+          36,
+          14
+        ],
+        "p75": [
+          77,
+          68,
+          40
+        ],
+        "elevation_colors": {
+          "low": [
+            52,
+            51,
+            26
+          ],
+          "mid": [
+            74,
+            66,
+            36
+          ],
+          "high": null
+        },
+        "sample_count": 500,
+        "tropical": false
+      },
+      "apr": {
+        "mean": [
+          51,
+          52,
+          26
+        ],
+        "median": [
+          49,
+          51,
+          25
+        ],
+        "std": [
+          23,
+          16,
+          14
+        ],
+        "p25": [
+          31,
+          40,
+          15
+        ],
+        "p75": [
+          67,
+          64,
+          36
+        ],
+        "elevation_colors": {
+          "low": [
+            49,
+            50,
+            24
+          ],
+          "mid": [
+            73,
+            68,
+            38
+          ],
+          "high": null
+        },
+        "sample_count": 500,
+        "tropical": false
+      },
+      "jul": {
+        "mean": [
+          44,
+          49,
+          21
+        ],
+        "median": [
+          39,
+          47,
+          19
+        ],
+        "std": [
+          23,
+          16,
+          14
+        ],
+        "p25": [
+          28,
+          39,
+          12
+        ],
+        "p75": [
+          56,
+          57,
+          28
+        ],
+        "elevation_colors": {
+          "low": [
+            44,
+            48,
+            21
+          ],
+          "mid": [
+            46,
+            55,
+            22
+          ],
+          "high": null
+        },
+        "sample_count": 500,
+        "tropical": false
+      },
+      "oct": {
+        "mean": [
+          44,
+          47,
+          21
+        ],
+        "median": [
+          40,
+          47,
+          19
+        ],
+        "std": [
+          22,
+          16,
+          13
+        ],
+        "p25": [
+          28,
+          35,
+          11
+        ],
+        "p75": [
+          57,
+          58,
+          28
+        ],
+        "elevation_colors": {
+          "low": [
+            43,
+            46,
+            21
+          ],
+          "mid": [
+            49,
+            56,
+            22
+          ],
+          "high": null
+        },
+        "sample_count": 500,
+        "tropical": false
+      }
+    },
+    "Cfa": {
+      "jan": {
+        "mean": [
+          61,
+          57,
+          30
+        ],
+        "median": [
+          58,
+          58,
+          29
+        ],
+        "std": [
+          18,
+          14,
+          11
+        ],
+        "p25": [
+          48,
+          46,
+          22
+        ],
+        "p75": [
+          74,
+          69,
+          38
+        ],
+        "elevation_colors": {
+          "low": [
+            61,
+            57,
+            30
+          ],
+          "mid": null,
+          "high": null
+        },
+        "sample_count": 500,
+        "tropical": false
+      },
+      "apr": {
+        "mean": [
+          58,
+          62,
+          30
+        ],
+        "median": [
+          56,
+          62,
+          28
+        ],
+        "std": [
+          16,
+          12,
+          11
+        ],
+        "p25": [
+          46,
+          54,
+          22
+        ],
+        "p75": [
+          69,
+          70,
+          36
+        ],
+        "elevation_colors": {
+          "low": [
+            58,
+            62,
+            30
+          ],
+          "mid": null,
+          "high": null
+        },
+        "sample_count": 500,
+        "tropical": false
+      },
+      "jul": {
+        "mean": [
+          48,
+          58,
+          23
+        ],
+        "median": [
+          45,
+          57,
+          22
+        ],
+        "std": [
+          17,
+          11,
+          10
+        ],
+        "p25": [
+          35,
+          50,
+          16
+        ],
+        "p75": [
+          59,
+          65,
+          31
+        ],
+        "elevation_colors": {
+          "low": [
+            48,
+            58,
+            23
+          ],
+          "mid": null,
+          "high": null
+        },
+        "sample_count": 500,
+        "tropical": false
+      },
+      "oct": {
+        "mean": [
+          53,
+          54,
+          26
+        ],
+        "median": [
+          51,
+          54,
+          25
+        ],
+        "std": [
+          18,
+          14,
+          11
+        ],
+        "p25": [
+          37,
+          42,
+          17
+        ],
+        "p75": [
+          68,
+          66,
+          35
+        ],
+        "elevation_colors": {
+          "low": [
+            53,
+            54,
+            26
+          ],
+          "mid": null,
+          "high": null
+        },
+        "sample_count": 500,
+        "tropical": false
+      }
+    },
+    "Csa": {
+      "jan": {
+        "mean": [
+          63,
+          59,
+          32
+        ],
+        "median": [
+          62,
+          61,
+          30
+        ],
+        "std": [
+          31,
+          24,
+          18
+        ],
+        "p25": [
+          46,
+          47,
+          20
+        ],
+        "p75": [
+          86,
+          76,
+          45
+        ],
+        "elevation_colors": {
+          "low": [
+            63,
+            59,
+            32
+          ],
+          "mid": null,
+          "high": null
+        },
+        "sample_count": 498,
+        "tropical": false
+      },
+      "apr": {
+        "mean": [
+          71,
+          69,
+          39
+        ],
+        "median": [
+          74,
+          72,
+          40
+        ],
+        "std": [
+          31,
+          26,
+          19
+        ],
+        "p25": [
+          53,
+          59,
+          25
+        ],
+        "p75": [
+          93,
+          87,
+          55
+        ],
+        "elevation_colors": {
+          "low": [
+            71,
+            69,
+            39
+          ],
+          "mid": null,
+          "high": null
+        },
+        "sample_count": 500,
+        "tropical": false
+      },
+      "jul": {
+        "mean": [
+          95,
+          83,
+          50
+        ],
+        "median": [
+          102,
+          89,
+          54
+        ],
+        "std": [
+          41,
+          32,
+          24
+        ],
+        "p25": [
+          75,
+          69,
+          35
+        ],
+        "p75": [
+          127,
+          106,
+          69
+        ],
+        "elevation_colors": {
+          "low": [
+            95,
+            83,
+            50
+          ],
+          "mid": null,
+          "high": null
+        },
+        "sample_count": 499,
+        "tropical": false
+      },
+      "oct": {
+        "mean": [
+          84,
+          72,
+          43
+        ],
+        "median": [
+          90,
+          77,
+          45
+        ],
+        "std": [
+          38,
+          29,
+          21
+        ],
+        "p25": [
+          63,
+          58,
+          28
+        ],
+        "p75": [
+          111,
+          94,
+          59
+        ],
+        "elevation_colors": {
+          "low": [
+            84,
+            72,
+            43
+          ],
+          "mid": null,
+          "high": null
+        },
+        "sample_count": 499,
+        "tropical": false
+      }
+    },
+    "Dsa": {
+      "jan": {
+        "mean": [
+          180,
+          173,
+          159
+        ],
+        "median": [
+          203,
+          193,
+          177
+        ],
+        "std": [
+          60,
+          66,
+          78
+        ],
+        "p25": [
+          120,
+          103,
+          79
+        ],
+        "p75": [
+          238,
+          239,
+          238
+        ],
+        "elevation_colors": {
+          "low": [
+            164,
+            157,
+            143
+          ],
+          "mid": [
+            200,
+            193,
+            180
+          ],
+          "high": null
+        },
+        "sample_count": 94,
+        "tropical": false
+      },
+      "apr": {
+        "mean": [
+          115,
+          104,
+          71
+        ],
+        "median": [
+          117,
+          103,
+          69
+        ],
+        "std": [
+          29,
+          25,
+          25
+        ],
+        "p25": [
+          99,
+          90,
+          57
+        ],
+        "p75": [
+          132,
+          117,
+          83
+        ],
+        "elevation_colors": {
+          "low": [
+            102,
+            94,
+            63
+          ],
+          "mid": [
+            132,
+            117,
+            82
+          ],
+          "high": null
+        },
+        "sample_count": 95,
+        "tropical": false
+      },
+      "jul": {
+        "mean": [
+          127,
+          108,
+          71
+        ],
+        "median": [
+          131,
+          111,
+          73
+        ],
+        "std": [
+          21,
+          18,
+          16
+        ],
+        "p25": [
+          121,
+          103,
+          65
+        ],
+        "p75": [
+          138,
+          118,
+          80
+        ],
+        "elevation_colors": {
+          "low": [
+            118,
+            101,
+            65
+          ],
+          "mid": [
+            138,
+            117,
+            79
+          ],
+          "high": null
+        },
+        "sample_count": 95,
+        "tropical": false
+      },
+      "oct": {
+        "mean": [
+          124,
+          101,
+          64
+        ],
+        "median": [
+          126,
+          103,
+          63
+        ],
+        "std": [
+          19,
+          17,
+          15
+        ],
+        "p25": [
+          117,
+          95,
+          57
+        ],
+        "p75": [
+          133,
+          110,
+          71
+        ],
+        "elevation_colors": {
+          "low": [
+            117,
+            96,
+            59
+          ],
+          "mid": [
+            133,
+            109,
+            70
+          ],
+          "high": null
+        },
+        "sample_count": 95,
+        "tropical": false
+      }
+    },
+    "BWh": {
+      "jan": {
+        "mean": [
+          161,
+          129,
+          90
+        ],
+        "median": [
+          169,
+          136,
+          95
+        ],
+        "std": [
+          32,
+          33,
+          28
+        ],
+        "p25": [
+          133,
+          101,
+          68
+        ],
+        "p75": [
+          189,
+          157,
+          113
+        ],
+        "elevation_colors": {
+          "low": [
+            161,
+            129,
+            90
+          ],
+          "mid": [
+            111,
+            96,
+            65
+          ],
+          "high": null
+        },
+        "sample_count": 500,
+        "tropical": false
+      },
+      "apr": {
+        "mean": [
+          164,
+          132,
+          95
+        ],
+        "median": [
+          175,
+          143,
+          104
+        ],
+        "std": [
+          32,
+          33,
+          30
+        ],
+        "p25": [
+          137,
+          108,
+          74
+        ],
+        "p75": [
+          191,
+          159,
+          117
+        ],
+        "elevation_colors": {
+          "low": [
+            165,
+            133,
+            95
+          ],
+          "mid": [
+            118,
+            103,
+            74
+          ],
+          "high": null
+        },
+        "sample_count": 500,
+        "tropical": false
+      },
+      "jul": {
+        "mean": [
+          164,
+          133,
+          97
+        ],
+        "median": [
+          176,
+          144,
+          107
+        ],
+        "std": [
+          33,
+          34,
+          31
+        ],
+        "p25": [
+          139,
+          111,
+          76
+        ],
+        "p75": [
+          192,
+          160,
+          120
+        ],
+        "elevation_colors": {
+          "low": [
+            165,
+            133,
+            97
+          ],
+          "mid": [
+            122,
+            107,
+            78
+          ],
+          "high": null
+        },
+        "sample_count": 500,
+        "tropical": false
+      },
+      "oct": {
+        "mean": [
+          164,
+          132,
+          95
+        ],
+        "median": [
+          172,
+          138,
+          101
+        ],
+        "std": [
+          30,
+          32,
+          27
+        ],
+        "p25": [
+          139,
+          108,
+          76
+        ],
+        "p75": [
+          190,
+          159,
+          116
+        ],
+        "elevation_colors": {
+          "low": [
+            165,
+            132,
+            95
+          ],
+          "mid": [
+            115,
+            99,
+            69
+          ],
+          "high": null
+        },
+        "sample_count": 500,
+        "tropical": false
+      }
+    },
+    "BSh": {
+      "jan": {
+        "mean": [
+          99,
+          85,
+          52
+        ],
+        "median": [
+          99,
+          84,
+          51
+        ],
+        "std": [
+          26,
+          18,
+          16
+        ],
+        "p25": [
+          81,
+          73,
+          42
+        ],
+        "p75": [
+          118,
+          96,
+          62
+        ],
+        "elevation_colors": {
+          "low": [
+            99,
+            85,
+            52
+          ],
+          "mid": null,
+          "high": null
+        },
+        "sample_count": 500,
+        "tropical": false
+      },
+      "apr": {
+        "mean": [
+          97,
+          83,
+          51
+        ],
+        "median": [
+          99,
+          80,
+          48
+        ],
+        "std": [
+          35,
+          25,
+          22
+        ],
+        "p25": [
+          71,
+          64,
+          34
+        ],
+        "p75": [
+          124,
+          101,
+          67
+        ],
+        "elevation_colors": {
+          "low": [
+            97,
+            83,
+            51
+          ],
+          "mid": null,
+          "high": null
+        },
+        "sample_count": 500,
+        "tropical": false
+      },
+      "jul": {
+        "mean": [
+          100,
+          83,
+          52
+        ],
+        "median": [
+          99,
+          80,
+          48
+        ],
+        "std": [
+          28,
+          24,
+          20
+        ],
+        "p25": [
+          79,
+          65,
+          38
+        ],
+        "p75": [
+          120,
+          100,
+          64
+        ],
+        "elevation_colors": {
+          "low": [
+            100,
+            83,
+            52
+          ],
+          "mid": null,
+          "high": null
+        },
+        "sample_count": 500,
+        "tropical": false
+      },
+      "oct": {
+        "mean": [
+          106,
+          87,
+          56
+        ],
+        "median": [
+          108,
+          85,
+          55
+        ],
+        "std": [
+          23,
+          17,
+          15
+        ],
+        "p25": [
+          91,
+          75,
+          47
+        ],
+        "p75": [
+          122,
+          98,
+          65
+        ],
+        "elevation_colors": {
+          "low": [
+            106,
+            87,
+            56
+          ],
+          "mid": null,
+          "high": null
+        },
+        "sample_count": 500,
+        "tropical": false
+      }
+    },
+    "Am": {
+      "jan": {
+        "mean": [
+          33,
+          45,
+          15
+        ],
+        "median": [
+          30,
+          44,
+          14
+        ],
+        "std": [
+          13,
+          10,
+          8
+        ],
+        "p25": [
+          25,
+          39,
+          10
+        ],
+        "p75": [
+          36,
+          50,
+          18
+        ],
+        "elevation_colors": {
+          "low": [
+            33,
+            45,
+            15
+          ],
+          "mid": null,
+          "high": null
+        },
+        "sample_count": 500,
+        "tropical": true
+      },
+      "apr": {
+        "mean": [
+          31,
+          43,
+          14
+        ],
+        "median": [
+          27,
+          41,
+          12
+        ],
+        "std": [
+          15,
+          11,
+          9
+        ],
+        "p25": [
+          23,
+          36,
+          9
+        ],
+        "p75": [
+          35,
+          48,
+          16
+        ],
+        "elevation_colors": {
+          "low": [
+            31,
+            43,
+            14
+          ],
+          "mid": null,
+          "high": null
+        },
+        "sample_count": 500,
+        "tropical": true
+      },
+      "jul": {
+        "mean": [
+          29,
+          42,
+          13
+        ],
+        "median": [
+          25,
+          39,
+          11
+        ],
+        "std": [
+          12,
+          10,
+          7
+        ],
+        "p25": [
+          22,
+          35,
+          9
+        ],
+        "p75": [
+          34,
+          48,
+          15
+        ],
+        "elevation_colors": {
+          "low": [
+            29,
+            42,
+            13
+          ],
+          "mid": null,
+          "high": null
+        },
+        "sample_count": 500,
+        "tropical": true
+      },
+      "oct": {
+        "mean": [
+          32,
+          46,
+          14
+        ],
+        "median": [
+          28,
+          44,
+          13
+        ],
+        "std": [
+          11,
+          9,
+          7
+        ],
+        "p25": [
+          24,
+          39,
+          10
+        ],
+        "p75": [
+          35,
+          51,
+          17
+        ],
+        "elevation_colors": {
+          "low": [
+            32,
+            46,
+            14
+          ],
+          "mid": null,
+          "high": null
+        },
+        "sample_count": 500,
+        "tropical": true
+      }
+    },
+    "Af": {
+      "jan": {
+        "mean": [
+          25,
+          40,
+          11
+        ],
+        "median": [
+          24,
+          39,
+          10
+        ],
+        "std": [
+          6,
+          7,
+          4
+        ],
+        "p25": [
+          21,
+          36,
+          8
+        ],
+        "p75": [
+          28,
+          44,
+          13
+        ],
+        "elevation_colors": {
+          "low": [
+            25,
+            40,
+            11
+          ],
+          "mid": null,
+          "high": null
+        },
+        "sample_count": 500,
+        "tropical": true
+      },
+      "apr": {
+        "mean": [
+          24,
+          39,
+          10
+        ],
+        "median": [
+          24,
+          38,
+          10
+        ],
+        "std": [
+          6,
+          6,
+          4
+        ],
+        "p25": [
+          21,
+          35,
+          8
+        ],
+        "p75": [
+          27,
+          42,
+          13
+        ],
+        "elevation_colors": {
+          "low": [
+            24,
+            39,
+            10
+          ],
+          "mid": null,
+          "high": null
+        },
+        "sample_count": 500,
+        "tropical": true
+      },
+      "jul": {
+        "mean": [
+          23,
+          37,
+          10
+        ],
+        "median": [
+          22,
+          36,
+          9
+        ],
+        "std": [
+          6,
+          6,
+          4
+        ],
+        "p25": [
+          20,
+          34,
+          8
+        ],
+        "p75": [
+          27,
+          41,
+          12
+        ],
+        "elevation_colors": {
+          "low": [
+            23,
+            37,
+            10
+          ],
+          "mid": null,
+          "high": null
+        },
+        "sample_count": 500,
+        "tropical": true
+      },
+      "oct": {
+        "mean": [
+          26,
+          41,
+          11
+        ],
+        "median": [
+          25,
+          41,
+          11
+        ],
+        "std": [
+          6,
+          6,
+          4
+        ],
+        "p25": [
+          23,
+          38,
+          9
+        ],
+        "p75": [
+          28,
+          45,
+          13
+        ],
+        "elevation_colors": {
+          "low": [
+            26,
+            41,
+            11
+          ],
+          "mid": null,
+          "high": null
+        },
+        "sample_count": 500,
+        "tropical": true
+      }
+    },
+    "Ocean": {
+      "jan": {
+        "mean": [
+          28,
+          44,
+          13
+        ],
+        "median": [
+          27,
+          42,
+          12
+        ],
+        "std": [
+          8,
+          8,
+          6
+        ],
+        "p25": [
+          22,
+          38,
+          9
+        ],
+        "p75": [
+          33,
+          49,
+          18
+        ],
+        "elevation_colors": {
+          "low": [
+            28,
+            44,
+            13
+          ],
+          "mid": null,
+          "high": null
+        },
+        "sample_count": 82,
+        "tropical": false
+      },
+      "apr": {
+        "mean": [
+          27,
+          42,
+          12
+        ],
+        "median": [
+          26,
+          41,
+          11
+        ],
+        "std": [
+          9,
+          8,
+          6
+        ],
+        "p25": [
+          22,
+          37,
+          8
+        ],
+        "p75": [
+          32,
+          47,
+          16
+        ],
+        "elevation_colors": {
+          "low": [
+            27,
+            42,
+            12
+          ],
+          "mid": null,
+          "high": null
+        },
+        "sample_count": 82,
+        "tropical": false
+      },
+      "jul": {
+        "mean": [
+          27,
+          42,
+          13
+        ],
+        "median": [
+          25,
+          39,
+          10
+        ],
+        "std": [
+          9,
+          9,
+          7
+        ],
+        "p25": [
+          22,
+          35,
+          8
+        ],
+        "p75": [
+          30,
+          46,
+          16
+        ],
+        "elevation_colors": {
+          "low": [
+            27,
+            42,
+            13
+          ],
+          "mid": null,
+          "high": null
+        },
+        "sample_count": 82,
+        "tropical": false
+      },
+      "oct": {
+        "mean": [
+          30,
+          45,
+          14
+        ],
+        "median": [
+          29,
+          43,
+          12
+        ],
+        "std": [
+          11,
+          10,
+          8
+        ],
+        "p25": [
+          22,
+          39,
+          8
+        ],
+        "p75": [
+          33,
+          49,
+          16
+        ],
+        "elevation_colors": {
+          "low": [
+            30,
+            45,
+            14
+          ],
+          "mid": null,
+          "high": null
+        },
+        "sample_count": 82,
+        "tropical": false
+      }
+    }
+  },
+  "seasonal_palettes": {
+    "ET": {
+      "north_winter": {
+        "mean": [
+          205,
+          205,
+          199
+        ],
+        "months": [
+          "dec",
+          "jan",
+          "feb"
+        ]
+      },
+      "north_spring": {
+        "mean": [
+          203,
+          200,
+          193
+        ],
+        "months": [
+          "mar",
+          "apr",
+          "may"
+        ]
+      },
+      "north_summer": {
+        "mean": [
+          141,
+          137,
+          120
+        ],
+        "months": [
+          "jun",
+          "jul",
+          "aug"
+        ]
+      },
+      "north_fall": {
+        "mean": [
+          193,
+          194,
+          188
+        ],
+        "months": [
+          "sep",
+          "oct",
+          "nov"
+        ]
+      },
+      "south_summer": {
+        "mean": [
+          205,
+          205,
+          199
+        ],
+        "months": [
+          "dec",
+          "jan",
+          "feb"
+        ]
+      },
+      "south_fall": {
+        "mean": [
+          203,
+          200,
+          193
+        ],
+        "months": [
+          "mar",
+          "apr",
+          "may"
+        ]
+      },
+      "south_winter": {
+        "mean": [
+          141,
+          137,
+          120
+        ],
+        "months": [
+          "jun",
+          "jul",
+          "aug"
+        ]
+      },
+      "south_spring": {
+        "mean": [
+          193,
+          194,
+          188
+        ],
+        "months": [
+          "sep",
+          "oct",
+          "nov"
+        ]
+      }
+    },
+    "EF": {
+      "north_winter": {
+        "mean": [
+          176,
+          182,
+          184
+        ],
+        "months": [
+          "dec",
+          "jan",
+          "feb"
+        ]
+      },
+      "north_spring": {
+        "mean": [
+          176,
+          181,
+          183
+        ],
+        "months": [
+          "mar",
+          "apr",
+          "may"
+        ]
+      },
+      "north_summer": {
+        "mean": [
+          153,
+          158,
+          158
+        ],
+        "months": [
+          "jun",
+          "jul",
+          "aug"
+        ]
+      },
+      "north_fall": {
+        "mean": [
+          169,
+          175,
+          177
+        ],
+        "months": [
+          "sep",
+          "oct",
+          "nov"
+        ]
+      },
+      "south_summer": {
+        "mean": [
+          176,
+          182,
+          184
+        ],
+        "months": [
+          "dec",
+          "jan",
+          "feb"
+        ]
+      },
+      "south_fall": {
+        "mean": [
+          176,
+          181,
+          183
+        ],
+        "months": [
+          "mar",
+          "apr",
+          "may"
+        ]
+      },
+      "south_winter": {
+        "mean": [
+          153,
+          158,
+          158
+        ],
+        "months": [
+          "jun",
+          "jul",
+          "aug"
+        ]
+      },
+      "south_spring": {
+        "mean": [
+          169,
+          175,
+          177
+        ],
+        "months": [
+          "sep",
+          "oct",
+          "nov"
+        ]
+      }
+    },
+    "Dfc": {
+      "north_winter": {
+        "mean": [
+          189,
+          197,
+          203
+        ],
+        "months": [
+          "dec",
+          "jan",
+          "feb"
+        ]
+      },
+      "north_spring": {
+        "mean": [
+          196,
+          197,
+          195
+        ],
+        "months": [
+          "mar",
+          "apr",
+          "may"
+        ]
+      },
+      "north_summer": {
+        "mean": [
+          40,
+          48,
+          21
+        ],
+        "months": [
+          "jun",
+          "jul",
+          "aug"
+        ]
+      },
+      "north_fall": {
+        "mean": [
+          135,
+          141,
+          139
+        ],
+        "months": [
+          "sep",
+          "oct",
+          "nov"
+        ]
+      },
+      "south_summer": {
+        "mean": [
+          189,
+          197,
+          203
+        ],
+        "months": [
+          "dec",
+          "jan",
+          "feb"
+        ]
+      },
+      "south_fall": {
+        "mean": [
+          196,
+          197,
+          195
+        ],
+        "months": [
+          "mar",
+          "apr",
+          "may"
+        ]
+      },
+      "south_winter": {
+        "mean": [
+          40,
+          48,
+          21
+        ],
+        "months": [
+          "jun",
+          "jul",
+          "aug"
+        ]
+      },
+      "south_spring": {
+        "mean": [
+          135,
+          141,
+          139
+        ],
+        "months": [
+          "sep",
+          "oct",
+          "nov"
+        ]
+      }
+    },
+    "Dsc": {
+      "north_winter": {
+        "mean": [
+          210,
+          218,
+          222
+        ],
+        "months": [
+          "dec",
+          "jan",
+          "feb"
+        ]
+      },
+      "north_spring": {
+        "mean": [
+          219,
+          220,
+          219
+        ],
+        "months": [
+          "mar",
+          "apr",
+          "may"
+        ]
+      },
+      "north_summer": {
+        "mean": [
+          43,
+          50,
+          23
+        ],
+        "months": [
+          "jun",
+          "jul",
+          "aug"
+        ]
+      },
+      "north_fall": {
+        "mean": [
+          178,
+          183,
+          185
+        ],
+        "months": [
+          "sep",
+          "oct",
+          "nov"
+        ]
+      },
+      "south_summer": {
+        "mean": [
+          210,
+          218,
+          222
+        ],
+        "months": [
+          "dec",
+          "jan",
+          "feb"
+        ]
+      },
+      "south_fall": {
+        "mean": [
+          219,
+          220,
+          219
+        ],
+        "months": [
+          "mar",
+          "apr",
+          "may"
+        ]
+      },
+      "south_winter": {
+        "mean": [
+          43,
+          50,
+          23
+        ],
+        "months": [
+          "jun",
+          "jul",
+          "aug"
+        ]
+      },
+      "south_spring": {
+        "mean": [
+          178,
+          183,
+          185
+        ],
+        "months": [
+          "sep",
+          "oct",
+          "nov"
+        ]
+      }
+    },
+    "Dfd": {
+      "north_winter": {
+        "mean": [
+          195,
+          202,
+          207
+        ],
+        "months": [
+          "dec",
+          "jan",
+          "feb"
+        ]
+      },
+      "north_spring": {
+        "mean": [
+          198,
+          198,
+          196
+        ],
+        "months": [
+          "mar",
+          "apr",
+          "may"
+        ]
+      },
+      "north_summer": {
+        "mean": [
+          36,
+          48,
+          17
+        ],
+        "months": [
+          "jun",
+          "jul",
+          "aug"
+        ]
+      },
+      "north_fall": {
+        "mean": [
+          166,
+          170,
+          173
+        ],
+        "months": [
+          "sep",
+          "oct",
+          "nov"
+        ]
+      },
+      "south_summer": {
+        "mean": [
+          195,
+          202,
+          207
+        ],
+        "months": [
+          "dec",
+          "jan",
+          "feb"
+        ]
+      },
+      "south_fall": {
+        "mean": [
+          198,
+          198,
+          196
+        ],
+        "months": [
+          "mar",
+          "apr",
+          "may"
+        ]
+      },
+      "south_winter": {
+        "mean": [
+          36,
+          48,
+          17
+        ],
+        "months": [
+          "jun",
+          "jul",
+          "aug"
+        ]
+      },
+      "south_spring": {
+        "mean": [
+          166,
+          170,
+          173
+        ],
+        "months": [
+          "sep",
+          "oct",
+          "nov"
+        ]
+      }
+    },
+    "Dwc": {
+      "north_winter": {
+        "mean": [
+          167,
+          169,
+          170
+        ],
+        "months": [
+          "dec",
+          "jan",
+          "feb"
+        ]
+      },
+      "north_spring": {
+        "mean": [
+          165,
+          163,
+          156
+        ],
+        "months": [
+          "mar",
+          "apr",
+          "may"
+        ]
+      },
+      "north_summer": {
+        "mean": [
+          41,
+          52,
+          23
+        ],
+        "months": [
+          "jun",
+          "jul",
+          "aug"
+        ]
+      },
+      "north_fall": {
+        "mean": [
+          116,
+          114,
+          106
+        ],
+        "months": [
+          "sep",
+          "oct",
+          "nov"
+        ]
+      },
+      "south_summer": {
+        "mean": [
+          167,
+          169,
+          170
+        ],
+        "months": [
+          "dec",
+          "jan",
+          "feb"
+        ]
+      },
+      "south_fall": {
+        "mean": [
+          165,
+          163,
+          156
+        ],
+        "months": [
+          "mar",
+          "apr",
+          "may"
+        ]
+      },
+      "south_winter": {
+        "mean": [
+          41,
+          52,
+          23
+        ],
+        "months": [
+          "jun",
+          "jul",
+          "aug"
+        ]
+      },
+      "south_spring": {
+        "mean": [
+          116,
+          114,
+          106
+        ],
+        "months": [
+          "sep",
+          "oct",
+          "nov"
+        ]
+      }
+    },
+    "Dwd": {
+      "north_winter": {
+        "mean": [
+          217,
+          223,
+          228
+        ],
+        "months": [
+          "dec",
+          "jan",
+          "feb"
+        ]
+      },
+      "north_spring": {
+        "mean": [
+          221,
+          221,
+          221
+        ],
+        "months": [
+          "mar",
+          "apr",
+          "may"
+        ]
+      },
+      "north_summer": {
+        "mean": [
+          44,
+          52,
+          21
+        ],
+        "months": [
+          "jun",
+          "jul",
+          "aug"
+        ]
+      },
+      "north_fall": {
+        "mean": [
+          202,
+          206,
+          210
+        ],
+        "months": [
+          "sep",
+          "oct",
+          "nov"
+        ]
+      },
+      "south_summer": {
+        "mean": [
+          217,
+          223,
+          228
+        ],
+        "months": [
+          "dec",
+          "jan",
+          "feb"
+        ]
+      },
+      "south_fall": {
+        "mean": [
+          221,
+          221,
+          221
+        ],
+        "months": [
+          "mar",
+          "apr",
+          "may"
+        ]
+      },
+      "south_winter": {
+        "mean": [
+          44,
+          52,
+          21
+        ],
+        "months": [
+          "jun",
+          "jul",
+          "aug"
+        ]
+      },
+      "south_spring": {
+        "mean": [
+          202,
+          206,
+          210
+        ],
+        "months": [
+          "sep",
+          "oct",
+          "nov"
+        ]
+      }
+    },
+    "BSk": {
+      "north_winter": {
+        "mean": [
+          155,
+          146,
+          129
+        ],
+        "months": [
+          "dec",
+          "jan",
+          "feb"
+        ]
+      },
+      "north_spring": {
+        "mean": [
+          100,
+          87,
+          58
+        ],
+        "months": [
+          "mar",
+          "apr",
+          "may"
+        ]
+      },
+      "north_summer": {
+        "mean": [
+          97,
+          87,
+          55
+        ],
+        "months": [
+          "jun",
+          "jul",
+          "aug"
+        ]
+      },
+      "north_fall": {
+        "mean": [
+          99,
+          83,
+          54
+        ],
+        "months": [
+          "sep",
+          "oct",
+          "nov"
+        ]
+      },
+      "south_summer": {
+        "mean": [
+          155,
+          146,
+          129
+        ],
+        "months": [
+          "dec",
+          "jan",
+          "feb"
+        ]
+      },
+      "south_fall": {
+        "mean": [
+          100,
+          87,
+          58
+        ],
+        "months": [
+          "mar",
+          "apr",
+          "may"
+        ]
+      },
+      "south_winter": {
+        "mean": [
+          97,
+          87,
+          55
+        ],
+        "months": [
+          "jun",
+          "jul",
+          "aug"
+        ]
+      },
+      "south_spring": {
+        "mean": [
+          99,
+          83,
+          54
+        ],
+        "months": [
+          "sep",
+          "oct",
+          "nov"
+        ]
+      }
+    },
+    "Dfb": {
+      "north_winter": {
+        "mean": [
+          164,
+          167,
+          167
+        ],
+        "months": [
+          "dec",
+          "jan",
+          "feb"
+        ]
+      },
+      "north_spring": {
+        "mean": [
+          94,
+          92,
+          75
+        ],
+        "months": [
+          "mar",
+          "apr",
+          "may"
+        ]
+      },
+      "north_summer": {
+        "mean": [
+          34,
+          48,
+          16
+        ],
+        "months": [
+          "jun",
+          "jul",
+          "aug"
+        ]
+      },
+      "north_fall": {
+        "mean": [
+          54,
+          54,
+          34
+        ],
+        "months": [
+          "sep",
+          "oct",
+          "nov"
+        ]
+      },
+      "south_summer": {
+        "mean": [
+          164,
+          167,
+          167
+        ],
+        "months": [
+          "dec",
+          "jan",
+          "feb"
+        ]
+      },
+      "south_fall": {
+        "mean": [
+          94,
+          92,
+          75
+        ],
+        "months": [
+          "mar",
+          "apr",
+          "may"
+        ]
+      },
+      "south_winter": {
+        "mean": [
+          34,
+          48,
+          16
+        ],
+        "months": [
+          "jun",
+          "jul",
+          "aug"
+        ]
+      },
+      "south_spring": {
+        "mean": [
+          54,
+          54,
+          34
+        ],
+        "months": [
+          "sep",
+          "oct",
+          "nov"
+        ]
+      }
+    },
+    "Aw": {
+      "tropical": {
+        "mean": 49,
+        "months": [
+          "jan",
+          "apr",
+          "jul",
+          "oct"
+        ]
+      }
+    },
+    "Dsb": {
+      "north_winter": {
+        "mean": [
+          164,
+          163,
+          157
+        ],
+        "months": [
+          "dec",
+          "jan",
+          "feb"
+        ]
+      },
+      "north_spring": {
+        "mean": [
+          97,
+          92,
+          68
+        ],
+        "months": [
+          "mar",
+          "apr",
+          "may"
+        ]
+      },
+      "north_summer": {
+        "mean": [
+          79,
+          74,
+          43
+        ],
+        "months": [
+          "jun",
+          "jul",
+          "aug"
+        ]
+      },
+      "north_fall": {
+        "mean": [
+          76,
+          66,
+          39
+        ],
+        "months": [
+          "sep",
+          "oct",
+          "nov"
+        ]
+      },
+      "south_summer": {
+        "mean": [
+          164,
+          163,
+          157
+        ],
+        "months": [
+          "dec",
+          "jan",
+          "feb"
+        ]
+      },
+      "south_fall": {
+        "mean": [
+          97,
+          92,
+          68
+        ],
+        "months": [
+          "mar",
+          "apr",
+          "may"
+        ]
+      },
+      "south_winter": {
+        "mean": [
+          79,
+          74,
+          43
+        ],
+        "months": [
+          "jun",
+          "jul",
+          "aug"
+        ]
+      },
+      "south_spring": {
+        "mean": [
+          76,
+          66,
+          39
+        ],
+        "months": [
+          "sep",
+          "oct",
+          "nov"
+        ]
+      }
+    },
+    "Cwa": {
+      "north_winter": {
+        "mean": [
+          59,
+          61,
+          30
+        ],
+        "months": [
+          "dec",
+          "jan",
+          "feb"
+        ]
+      },
+      "north_spring": {
+        "mean": [
+          68,
+          68,
+          37
+        ],
+        "months": [
+          "mar",
+          "apr",
+          "may"
+        ]
+      },
+      "north_summer": {
+        "mean": [
+          65,
+          67,
+          34
+        ],
+        "months": [
+          "jun",
+          "jul",
+          "aug"
+        ]
+      },
+      "north_fall": {
+        "mean": [
+          63,
+          64,
+          33
+        ],
+        "months": [
+          "sep",
+          "oct",
+          "nov"
+        ]
+      },
+      "south_summer": {
+        "mean": [
+          59,
+          61,
+          30
+        ],
+        "months": [
+          "dec",
+          "jan",
+          "feb"
+        ]
+      },
+      "south_fall": {
+        "mean": [
+          68,
+          68,
+          37
+        ],
+        "months": [
+          "mar",
+          "apr",
+          "may"
+        ]
+      },
+      "south_winter": {
+        "mean": [
+          65,
+          67,
+          34
+        ],
+        "months": [
+          "jun",
+          "jul",
+          "aug"
+        ]
+      },
+      "south_spring": {
+        "mean": [
+          63,
+          64,
+          33
+        ],
+        "months": [
+          "sep",
+          "oct",
+          "nov"
+        ]
+      }
+    },
+    "Dwb": {
+      "north_winter": {
+        "mean": [
+          147,
+          139,
+          129
+        ],
+        "months": [
+          "dec",
+          "jan",
+          "feb"
+        ]
+      },
+      "north_spring": {
+        "mean": [
+          91,
+          80,
+          59
+        ],
+        "months": [
+          "mar",
+          "apr",
+          "may"
+        ]
+      },
+      "north_summer": {
+        "mean": [
+          41,
+          56,
+          21
+        ],
+        "months": [
+          "jun",
+          "jul",
+          "aug"
+        ]
+      },
+      "north_fall": {
+        "mean": [
+          65,
+          54,
+          33
+        ],
+        "months": [
+          "sep",
+          "oct",
+          "nov"
+        ]
+      },
+      "south_summer": {
+        "mean": [
+          147,
+          139,
+          129
+        ],
+        "months": [
+          "dec",
+          "jan",
+          "feb"
+        ]
+      },
+      "south_fall": {
+        "mean": [
+          91,
+          80,
+          59
+        ],
+        "months": [
+          "mar",
+          "apr",
+          "may"
+        ]
+      },
+      "south_winter": {
+        "mean": [
+          41,
+          56,
+          21
+        ],
+        "months": [
+          "jun",
+          "jul",
+          "aug"
+        ]
+      },
+      "south_spring": {
+        "mean": [
+          65,
+          54,
+          33
+        ],
+        "months": [
+          "sep",
+          "oct",
+          "nov"
+        ]
+      }
+    },
+    "Cwb": {
+      "north_winter": {
+        "mean": [
+          64,
+          60,
+          32
+        ],
+        "months": [
+          "dec",
+          "jan",
+          "feb"
+        ]
+      },
+      "north_spring": {
+        "mean": [
+          66,
+          61,
+          33
+        ],
+        "months": [
+          "mar",
+          "apr",
+          "may"
+        ]
+      },
+      "north_summer": {
+        "mean": [
+          65,
+          59,
+          31
+        ],
+        "months": [
+          "jun",
+          "jul",
+          "aug"
+        ]
+      },
+      "north_fall": {
+        "mean": [
+          67,
+          61,
+          34
+        ],
+        "months": [
+          "sep",
+          "oct",
+          "nov"
+        ]
+      },
+      "south_summer": {
+        "mean": [
+          64,
+          60,
+          32
+        ],
+        "months": [
+          "dec",
+          "jan",
+          "feb"
+        ]
+      },
+      "south_fall": {
+        "mean": [
+          66,
+          61,
+          33
+        ],
+        "months": [
+          "mar",
+          "apr",
+          "may"
+        ]
+      },
+      "south_winter": {
+        "mean": [
+          65,
+          59,
+          31
+        ],
+        "months": [
+          "jun",
+          "jul",
+          "aug"
+        ]
+      },
+      "south_spring": {
+        "mean": [
+          67,
+          61,
+          34
+        ],
+        "months": [
+          "sep",
+          "oct",
+          "nov"
+        ]
+      }
+    },
+    "Dfa": {
+      "north_winter": {
+        "mean": [
+          125,
+          115,
+          97
+        ],
+        "months": [
+          "dec",
+          "jan",
+          "feb"
+        ]
+      },
+      "north_spring": {
+        "mean": [
+          81,
+          74,
+          46
+        ],
+        "months": [
+          "mar",
+          "apr",
+          "may"
+        ]
+      },
+      "north_summer": {
+        "mean": [
+          47,
+          61,
+          24
+        ],
+        "months": [
+          "jun",
+          "jul",
+          "aug"
+        ]
+      },
+      "north_fall": {
+        "mean": [
+          69,
+          62,
+          34
+        ],
+        "months": [
+          "sep",
+          "oct",
+          "nov"
+        ]
+      },
+      "south_summer": {
+        "mean": [
+          125,
+          115,
+          97
+        ],
+        "months": [
+          "dec",
+          "jan",
+          "feb"
+        ]
+      },
+      "south_fall": {
+        "mean": [
+          81,
+          74,
+          46
+        ],
+        "months": [
+          "mar",
+          "apr",
+          "may"
+        ]
+      },
+      "south_winter": {
+        "mean": [
+          47,
+          61,
+          24
+        ],
+        "months": [
+          "jun",
+          "jul",
+          "aug"
+        ]
+      },
+      "south_spring": {
+        "mean": [
+          69,
+          62,
+          34
+        ],
+        "months": [
+          "sep",
+          "oct",
+          "nov"
+        ]
+      }
+    },
+    "BWk": {
+      "north_winter": {
+        "mean": [
+          145,
+          132,
+          107
+        ],
+        "months": [
+          "dec",
+          "jan",
+          "feb"
+        ]
+      },
+      "north_spring": {
+        "mean": [
+          126,
+          111,
+          81
+        ],
+        "months": [
+          "mar",
+          "apr",
+          "may"
+        ]
+      },
+      "north_summer": {
+        "mean": [
+          126,
+          111,
+          80
+        ],
+        "months": [
+          "jun",
+          "jul",
+          "aug"
+        ]
+      },
+      "north_fall": {
+        "mean": [
+          127,
+          110,
+          78
+        ],
+        "months": [
+          "sep",
+          "oct",
+          "nov"
+        ]
+      },
+      "south_summer": {
+        "mean": [
+          145,
+          132,
+          107
+        ],
+        "months": [
+          "dec",
+          "jan",
+          "feb"
+        ]
+      },
+      "south_fall": {
+        "mean": [
+          126,
+          111,
+          81
+        ],
+        "months": [
+          "mar",
+          "apr",
+          "may"
+        ]
+      },
+      "south_winter": {
+        "mean": [
+          126,
+          111,
+          80
+        ],
+        "months": [
+          "jun",
+          "jul",
+          "aug"
+        ]
+      },
+      "south_spring": {
+        "mean": [
+          127,
+          110,
+          78
+        ],
+        "months": [
+          "sep",
+          "oct",
+          "nov"
+        ]
+      }
+    },
+    "Dwa": {
+      "north_winter": {
+        "mean": [
+          120,
+          105,
+          83
+        ],
+        "months": [
+          "dec",
+          "jan",
+          "feb"
+        ]
+      },
+      "north_spring": {
+        "mean": [
+          96,
+          82,
+          55
+        ],
+        "months": [
+          "mar",
+          "apr",
+          "may"
+        ]
+      },
+      "north_summer": {
+        "mean": [
+          59,
+          66,
+          33
+        ],
+        "months": [
+          "jun",
+          "jul",
+          "aug"
+        ]
+      },
+      "north_fall": {
+        "mean": [
+          76,
+          67,
+          39
+        ],
+        "months": [
+          "sep",
+          "oct",
+          "nov"
+        ]
+      },
+      "south_summer": {
+        "mean": [
+          120,
+          105,
+          83
+        ],
+        "months": [
+          "dec",
+          "jan",
+          "feb"
+        ]
+      },
+      "south_fall": {
+        "mean": [
+          96,
+          82,
+          55
+        ],
+        "months": [
+          "mar",
+          "apr",
+          "may"
+        ]
+      },
+      "south_winter": {
+        "mean": [
+          59,
+          66,
+          33
+        ],
+        "months": [
+          "jun",
+          "jul",
+          "aug"
+        ]
+      },
+      "south_spring": {
+        "mean": [
+          76,
+          67,
+          39
+        ],
+        "months": [
+          "sep",
+          "oct",
+          "nov"
+        ]
+      }
+    },
+    "Csb": {
+      "north_winter": {
+        "mean": [
+          55,
+          52,
+          27
+        ],
+        "months": [
+          "dec",
+          "jan",
+          "feb"
+        ]
+      },
+      "north_spring": {
+        "mean": [
+          51,
+          52,
+          26
+        ],
+        "months": [
+          "mar",
+          "apr",
+          "may"
+        ]
+      },
+      "north_summer": {
+        "mean": [
+          44,
+          49,
+          21
+        ],
+        "months": [
+          "jun",
+          "jul",
+          "aug"
+        ]
+      },
+      "north_fall": {
+        "mean": [
+          44,
+          47,
+          21
+        ],
+        "months": [
+          "sep",
+          "oct",
+          "nov"
+        ]
+      },
+      "south_summer": {
+        "mean": [
+          55,
+          52,
+          27
+        ],
+        "months": [
+          "dec",
+          "jan",
+          "feb"
+        ]
+      },
+      "south_fall": {
+        "mean": [
+          51,
+          52,
+          26
+        ],
+        "months": [
+          "mar",
+          "apr",
+          "may"
+        ]
+      },
+      "south_winter": {
+        "mean": [
+          44,
+          49,
+          21
+        ],
+        "months": [
+          "jun",
+          "jul",
+          "aug"
+        ]
+      },
+      "south_spring": {
+        "mean": [
+          44,
+          47,
+          21
+        ],
+        "months": [
+          "sep",
+          "oct",
+          "nov"
+        ]
+      }
+    },
+    "Cfa": {
+      "north_winter": {
+        "mean": [
+          61,
+          57,
+          30
+        ],
+        "months": [
+          "dec",
+          "jan",
+          "feb"
+        ]
+      },
+      "north_spring": {
+        "mean": [
+          58,
+          62,
+          30
+        ],
+        "months": [
+          "mar",
+          "apr",
+          "may"
+        ]
+      },
+      "north_summer": {
+        "mean": [
+          48,
+          58,
+          23
+        ],
+        "months": [
+          "jun",
+          "jul",
+          "aug"
+        ]
+      },
+      "north_fall": {
+        "mean": [
+          53,
+          54,
+          26
+        ],
+        "months": [
+          "sep",
+          "oct",
+          "nov"
+        ]
+      },
+      "south_summer": {
+        "mean": [
+          61,
+          57,
+          30
+        ],
+        "months": [
+          "dec",
+          "jan",
+          "feb"
+        ]
+      },
+      "south_fall": {
+        "mean": [
+          58,
+          62,
+          30
+        ],
+        "months": [
+          "mar",
+          "apr",
+          "may"
+        ]
+      },
+      "south_winter": {
+        "mean": [
+          48,
+          58,
+          23
+        ],
+        "months": [
+          "jun",
+          "jul",
+          "aug"
+        ]
+      },
+      "south_spring": {
+        "mean": [
+          53,
+          54,
+          26
+        ],
+        "months": [
+          "sep",
+          "oct",
+          "nov"
+        ]
+      }
+    },
+    "Csa": {
+      "north_winter": {
+        "mean": [
+          63,
+          59,
+          32
+        ],
+        "months": [
+          "dec",
+          "jan",
+          "feb"
+        ]
+      },
+      "north_spring": {
+        "mean": [
+          71,
+          69,
+          39
+        ],
+        "months": [
+          "mar",
+          "apr",
+          "may"
+        ]
+      },
+      "north_summer": {
+        "mean": [
+          95,
+          83,
+          50
+        ],
+        "months": [
+          "jun",
+          "jul",
+          "aug"
+        ]
+      },
+      "north_fall": {
+        "mean": [
+          84,
+          72,
+          43
+        ],
+        "months": [
+          "sep",
+          "oct",
+          "nov"
+        ]
+      },
+      "south_summer": {
+        "mean": [
+          63,
+          59,
+          32
+        ],
+        "months": [
+          "dec",
+          "jan",
+          "feb"
+        ]
+      },
+      "south_fall": {
+        "mean": [
+          71,
+          69,
+          39
+        ],
+        "months": [
+          "mar",
+          "apr",
+          "may"
+        ]
+      },
+      "south_winter": {
+        "mean": [
+          95,
+          83,
+          50
+        ],
+        "months": [
+          "jun",
+          "jul",
+          "aug"
+        ]
+      },
+      "south_spring": {
+        "mean": [
+          84,
+          72,
+          43
+        ],
+        "months": [
+          "sep",
+          "oct",
+          "nov"
+        ]
+      }
+    },
+    "Dsa": {
+      "north_winter": {
+        "mean": [
+          180,
+          173,
+          159
+        ],
+        "months": [
+          "dec",
+          "jan",
+          "feb"
+        ]
+      },
+      "north_spring": {
+        "mean": [
+          115,
+          104,
+          71
+        ],
+        "months": [
+          "mar",
+          "apr",
+          "may"
+        ]
+      },
+      "north_summer": {
+        "mean": [
+          127,
+          108,
+          71
+        ],
+        "months": [
+          "jun",
+          "jul",
+          "aug"
+        ]
+      },
+      "north_fall": {
+        "mean": [
+          124,
+          101,
+          64
+        ],
+        "months": [
+          "sep",
+          "oct",
+          "nov"
+        ]
+      },
+      "south_summer": {
+        "mean": [
+          180,
+          173,
+          159
+        ],
+        "months": [
+          "dec",
+          "jan",
+          "feb"
+        ]
+      },
+      "south_fall": {
+        "mean": [
+          115,
+          104,
+          71
+        ],
+        "months": [
+          "mar",
+          "apr",
+          "may"
+        ]
+      },
+      "south_winter": {
+        "mean": [
+          127,
+          108,
+          71
+        ],
+        "months": [
+          "jun",
+          "jul",
+          "aug"
+        ]
+      },
+      "south_spring": {
+        "mean": [
+          124,
+          101,
+          64
+        ],
+        "months": [
+          "sep",
+          "oct",
+          "nov"
+        ]
+      }
+    },
+    "BWh": {
+      "north_winter": {
+        "mean": [
+          161,
+          129,
+          90
+        ],
+        "months": [
+          "dec",
+          "jan",
+          "feb"
+        ]
+      },
+      "north_spring": {
+        "mean": [
+          164,
+          132,
+          95
+        ],
+        "months": [
+          "mar",
+          "apr",
+          "may"
+        ]
+      },
+      "north_summer": {
+        "mean": [
+          164,
+          133,
+          97
+        ],
+        "months": [
+          "jun",
+          "jul",
+          "aug"
+        ]
+      },
+      "north_fall": {
+        "mean": [
+          164,
+          132,
+          95
+        ],
+        "months": [
+          "sep",
+          "oct",
+          "nov"
+        ]
+      },
+      "south_summer": {
+        "mean": [
+          161,
+          129,
+          90
+        ],
+        "months": [
+          "dec",
+          "jan",
+          "feb"
+        ]
+      },
+      "south_fall": {
+        "mean": [
+          164,
+          132,
+          95
+        ],
+        "months": [
+          "mar",
+          "apr",
+          "may"
+        ]
+      },
+      "south_winter": {
+        "mean": [
+          164,
+          133,
+          97
+        ],
+        "months": [
+          "jun",
+          "jul",
+          "aug"
+        ]
+      },
+      "south_spring": {
+        "mean": [
+          164,
+          132,
+          95
+        ],
+        "months": [
+          "sep",
+          "oct",
+          "nov"
+        ]
+      }
+    },
+    "BSh": {
+      "north_winter": {
+        "mean": [
+          99,
+          85,
+          52
+        ],
+        "months": [
+          "dec",
+          "jan",
+          "feb"
+        ]
+      },
+      "north_spring": {
+        "mean": [
+          97,
+          83,
+          51
+        ],
+        "months": [
+          "mar",
+          "apr",
+          "may"
+        ]
+      },
+      "north_summer": {
+        "mean": [
+          100,
+          83,
+          52
+        ],
+        "months": [
+          "jun",
+          "jul",
+          "aug"
+        ]
+      },
+      "north_fall": {
+        "mean": [
+          106,
+          87,
+          56
+        ],
+        "months": [
+          "sep",
+          "oct",
+          "nov"
+        ]
+      },
+      "south_summer": {
+        "mean": [
+          99,
+          85,
+          52
+        ],
+        "months": [
+          "dec",
+          "jan",
+          "feb"
+        ]
+      },
+      "south_fall": {
+        "mean": [
+          97,
+          83,
+          51
+        ],
+        "months": [
+          "mar",
+          "apr",
+          "may"
+        ]
+      },
+      "south_winter": {
+        "mean": [
+          100,
+          83,
+          52
+        ],
+        "months": [
+          "jun",
+          "jul",
+          "aug"
+        ]
+      },
+      "south_spring": {
+        "mean": [
+          106,
+          87,
+          56
+        ],
+        "months": [
+          "sep",
+          "oct",
+          "nov"
+        ]
+      }
+    },
+    "Am": {
+      "tropical": {
+        "mean": 29,
+        "months": [
+          "jan",
+          "apr",
+          "jul",
+          "oct"
+        ]
+      }
+    },
+    "Af": {
+      "tropical": {
+        "mean": 24,
+        "months": [
+          "jan",
+          "apr",
+          "jul",
+          "oct"
+        ]
+      }
+    },
+    "Ocean": {
+      "north_winter": {
+        "mean": [
+          28,
+          44,
+          13
+        ],
+        "months": [
+          "dec",
+          "jan",
+          "feb"
+        ]
+      },
+      "north_spring": {
+        "mean": [
+          27,
+          42,
+          12
+        ],
+        "months": [
+          "mar",
+          "apr",
+          "may"
+        ]
+      },
+      "north_summer": {
+        "mean": [
+          27,
+          42,
+          13
+        ],
+        "months": [
+          "jun",
+          "jul",
+          "aug"
+        ]
+      },
+      "north_fall": {
+        "mean": [
+          30,
+          45,
+          14
+        ],
+        "months": [
+          "sep",
+          "oct",
+          "nov"
+        ]
+      },
+      "south_summer": {
+        "mean": [
+          28,
+          44,
+          13
+        ],
+        "months": [
+          "dec",
+          "jan",
+          "feb"
+        ]
+      },
+      "south_fall": {
+        "mean": [
+          27,
+          42,
+          12
+        ],
+        "months": [
+          "mar",
+          "apr",
+          "may"
+        ]
+      },
+      "south_winter": {
+        "mean": [
+          27,
+          42,
+          13
+        ],
+        "months": [
+          "jun",
+          "jul",
+          "aug"
+        ]
+      },
+      "south_spring": {
+        "mean": [
+          30,
+          45,
+          14
+        ],
+        "months": [
+          "sep",
+          "oct",
+          "nov"
+        ]
+      }
+    }
+  }
+}

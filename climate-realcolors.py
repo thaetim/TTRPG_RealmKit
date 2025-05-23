@@ -7,10 +7,10 @@ from tqdm import tqdm
 from collections import defaultdict
 import os
 import re
-from biome_arrange_constants import KOPPEN_COLORS
+from biome_arrange_constants import KOPPEN_TO_COLOR
 
 # Constants for working directory and basic file paths
-WORKING_DIR = Path("D:/DND/Realistic DND World Gen/earth")  # Proper forward slashes to avoid escape sequence issues
+WORKING_DIR = Path("D:/DND/Realistic DND World Gen/climate/earth")  # Proper forward slashes to avoid escape sequence issues
 FPATH_KOPPEN = WORKING_DIR / "Koppen-Geiger_Map_v2_World_1991–2020.svg.png"
 FPATH_ELEVATION = WORKING_DIR / "srtm_ramp2.world.5400x2700.jpg"
 FPATH_OUTPUT = WORKING_DIR / "climate_palettes.json"
@@ -128,10 +128,10 @@ def find_koppen_zones(koppen_map, tolerance=4):
     print("Finding Koppen-Geiger zones in map...")
     height, width = koppen_map.shape[:2]
     
-    rgb_to_koppen = {tuple(map(int, color)): code for code, color in KOPPEN_COLORS.items()}
+    rgb_to_koppen = {tuple(map(int, color)): code for code, color in KOPPEN_TO_COLOR.items()}
     zone_pixels = defaultdict(list)
     black = (0, 0, 0)
-    target_colors = [(np.array(color), code) for code, color in KOPPEN_COLORS.items()]
+    target_colors = [(np.array(color), code) for code, color in KOPPEN_TO_COLOR.items()]
     exclude_colors = {(0, 0, 0), (255, 255, 255), (102, 102, 102)}
     
     with tqdm(total=height*width) as pbar:
@@ -146,7 +146,7 @@ def find_koppen_zones(koppen_map, tolerance=4):
                 min_dist = float('inf')
                 closest_zone = None
                 
-                for zone_code, zone_color in KOPPEN_COLORS.items():
+                for zone_code, zone_color in KOPPEN_TO_COLOR.items():
                     dist = color_distance(pixel, zone_color)
                     if dist < min_dist and dist < tolerance:
                         min_dist = dist
@@ -170,7 +170,7 @@ def find_koppen_zones(koppen_map, tolerance=4):
 def debug_visualize_zones(koppen_map, zone_pixels, output_path="zone_debug.png"):
     """Improved debug visualization"""
     debug_img = koppen_map.copy()
-    zone_colors = KOPPEN_COLORS
+    zone_colors = KOPPEN_TO_COLOR
     
     for zone, pixels in zone_pixels.items():
         color = zone_colors.get(zone, (255, 255, 0))
@@ -197,10 +197,71 @@ def resize_map(src_map, target_size):
     result.paste(resized, (paste_x, paste_y))
     return np.array(result)
 
+def get_similar_koppen_zone(zone):
+    """Get the most similar Köppen zone for fallback colors"""
+    # Define similarity groups based on Köppen classification
+    similarity_groups = {
+        # Tropical zones (A)
+        'Af': ['Am', 'Aw', 'As'],
+        'Am': ['Af', 'Aw', 'As'],
+        'Aw': ['Af', 'Am', 'As'],
+        'As': ['Af', 'Am', 'Aw'],
+        
+        # Arid zones (B)
+        'BWh': ['BWk', 'BSh', 'BSk'],
+        'BWk': ['BWh', 'BSh', 'BSk'],
+        'BSh': ['BWh', 'BWk', 'BSk'],
+        'BSk': ['BWh', 'BWk', 'BSh'],
+        
+        # Temperate zones (C)
+        'Cfa': ['Cfb', 'Cwa', 'Cwb'],
+        'Cfb': ['Cfa', 'Cfc', 'Cwb'],
+        'Cfc': ['Cfb', 'Dfc'],
+        'Csa': ['Csb', 'Cwa', 'Cwb'],
+        'Csb': ['Csa', 'Csc', 'Cwb'],
+        'Csc': ['Csb', 'Dsc'],
+        'Cwa': ['Cfa', 'Cwb', 'Csa'],
+        'Cwb': ['Cwa', 'Cfb', 'Csb'],
+        'Cwc': ['Cwb', 'Cfc', 'Dfc'],
+        
+        # Continental zones (D)
+        'Dfa': ['Dfb', 'Cfa'],
+        'Dfb': ['Dfa', 'Dfc', 'Cfb'],
+        'Dfc': ['Dfb', 'Dfd', 'Cfc'],
+        'Dfd': ['Dfc', 'ET'],
+        'Dsa': ['Dsb', 'Csa'],
+        'Dsb': ['Dsa', 'Dsc', 'Csb'],
+        'Dsc': ['Dsb', 'Dsd', 'Csc'],
+        'Dsd': ['Dsc', 'ET'],
+        'Dwa': ['Dwb', 'Cwa'],
+        'Dwb': ['Dwa', 'Dwc', 'Cwb'],
+        'Dwc': ['Dwb', 'Dwd', 'Cwc'],
+        'Dwd': ['Dwc', 'ET'],
+        
+        # Polar zones (E)
+        'ET': ['Dfc', 'Dfd', 'Dsc', 'Dsd'],
+        'EF': ['ET']
+    }
+    
+    # If we have a direct mapping, use it
+    if zone in similarity_groups:
+        return similarity_groups[zone]
+    
+    # If not, find the closest match based on first letter
+    first_letter = zone[0]
+    similar_zones = []
+    
+    # Group by first letter (climate type)
+    for z in KOPPEN_TO_COLOR.keys():
+        if z[0] == first_letter and z != zone:
+            similar_zones.append(z)
+    
+    return similar_zones
+
 def extract_seasonal_colors(koppen_map, monthly_maps, elevations, zone_pixels, sample_size=500):
     """
     Extract representative colors for each Koppen zone from the monthly maps,
-    accounting for hemispheric seasons.
+    accounting for hemispheric seasons. Uses similar zones as fallbacks when data is missing.
     """
     koppen_height, koppen_width = koppen_map.shape[:2]
     first_month = next(iter(monthly_maps.values()))
@@ -209,7 +270,9 @@ def extract_seasonal_colors(koppen_map, monthly_maps, elevations, zone_pixels, s
     y_scale = monthly_height / koppen_height
     
     results = {}
+    processed_zones = set()
     
+    # First pass: process zones with actual data
     for zone, pixels in zone_pixels.items():
         print(f"\nProcessing zone: {zone}")
         
@@ -220,8 +283,6 @@ def extract_seasonal_colors(koppen_map, monthly_maps, elevations, zone_pixels, s
             sampled_pixels = pixels
         
         zone_results = {}
-        
-        # Determine if this is a tropical zone (minimal seasonal variation)
         tropical = is_tropical_climate(zone)
         
         for month, monthly_map in monthly_maps.items():
@@ -280,7 +341,6 @@ def extract_seasonal_colors(koppen_map, monthly_maps, elevations, zone_pixels, s
             else:
                 elevation_colors = {"low": None, "mid": None, "high": None}
             
-            # Store seasonal data with hemisphere information
             zone_results[month] = {
                 "mean": mean_color.tolist(),
                 "median": median_color.tolist(),
@@ -289,10 +349,60 @@ def extract_seasonal_colors(koppen_map, monthly_maps, elevations, zone_pixels, s
                 "p75": p75_color.tolist(),
                 "elevation_colors": elevation_colors,
                 "sample_count": valid_pixels,
-                "tropical": tropical  # Mark if this is a tropical zone
+                "tropical": tropical
             }
         
-        results[zone] = zone_results
+        if zone_results:  # Only add if we have some data
+            results[zone] = zone_results
+            processed_zones.add(zone)
+    
+    # Second pass: handle missing zones using similar zones as fallbacks
+    for zone in KOPPEN_TO_COLOR.keys():
+        if zone not in processed_zones:
+            print(f"\nProcessing missing zone: {zone} using fallback data")
+            similar_zones = get_similar_koppen_zone(zone)
+            
+            # Try to find data from similar zones
+            for similar_zone in similar_zones:
+                if similar_zone in results:
+                    print(f"  Using data from similar zone: {similar_zone}")
+                    # Copy the data but adjust colors slightly for variation
+                    zone_data = results[similar_zone].copy()
+                    for month in zone_data:
+                        # Add slight random variation to colors
+                        variation = np.random.randint(-5, 6, size=3)
+                        for key in ['mean', 'median', 'p25', 'p75']:
+                            if key in zone_data[month]:
+                                color = np.array(zone_data[month][key])
+                                zone_data[month][key] = np.clip(color + variation, 0, 255).tolist()
+                        
+                        # Adjust elevation colors if present
+                        if 'elevation_colors' in zone_data[month]:
+                            for elev in ['low', 'mid', 'high']:
+                                if zone_data[month]['elevation_colors'][elev] is not None:
+                                    color = np.array(zone_data[month]['elevation_colors'][elev])
+                                    zone_data[month]['elevation_colors'][elev] = np.clip(color + variation, 0, 255).tolist()
+                    
+                    results[zone] = zone_data
+                    processed_zones.add(zone)
+                    break
+    
+    # Final check: if any zones are still missing, use a default color scheme
+    for zone in KOPPEN_TO_COLOR.keys():
+        if zone not in processed_zones:
+            print(f"\nWarning: No data available for {zone}, using default colors")
+            # Create default seasonal data
+            default_colors = {
+                'jan': {"mean": [120, 100, 60], "median": [120, 100, 60], "std": [10, 10, 10],
+                       "p25": [110, 90, 50], "p75": [130, 110, 70],
+                       "elevation_colors": {"low": [130, 110, 70], "mid": [120, 100, 60], "high": [110, 90, 50]},
+                       "sample_count": 0, "tropical": is_tropical_climate(zone)},
+                'jul': {"mean": [130, 110, 70], "median": [130, 110, 70], "std": [10, 10, 10],
+                       "p25": [120, 100, 60], "p75": [140, 120, 80],
+                       "elevation_colors": {"low": [140, 120, 80], "mid": [130, 110, 70], "high": [120, 100, 60]},
+                       "sample_count": 0, "tropical": is_tropical_climate(zone)}
+            }
+            results[zone] = default_colors
     
     return results
 
