@@ -52,19 +52,20 @@ BIOME_TO_KOPPEN = {
     'Ice': 'EF'
 }
 
-KOPPEN_COLORS = {
+KOPPEN_TO_COLOR = {
     'Af': (0, 0, 254),     # Tropical rainforest - Dark blue
     'Am': (0, 119, 255),   # Tropical monsoon - Medium blue
     'Aw': (70, 169, 250),   # Tropical savanna - Light blue
     'As': (121, 186, 236),  # Tropical dry summer - Very light blue
     'BWh': (254, 0, 0),     # Hot desert - Red
-    'BWk': (254, 150, 149), # Cold desert - Pink
+    'BWk': (254, 150, 149),  # Cold desert - Pink
     'BSh': (245, 163, 1),   # Hot semi-arid - Orange
     'BSk': (255, 219, 99),  # Cold semi-arid - Light yellow
     'Csa': (255, 255, 0),   # Hot-summer Mediterranean - Yellow
     'Csb': (198, 199, 0),   # Warm-summer Mediterranean - Olive
     'Csc': (150, 150, 0),   # Cold-summer Mediterranean - Dark olive
-    'Cwa': (150, 255, 150), # Monsoon-influenced humid subtropical - Light green
+    # Monsoon-influenced humid subtropical - Light green
+    'Cwa': (150, 255, 150),
     'Cwb': (99, 199, 100),  # Subtropical highland - Medium green
     'Cwc': (50, 150, 50),   # Cold subtropical highland - Dark green
     'Cfa': (198, 255, 78),  # Humid subtropical - Bright green
@@ -73,11 +74,15 @@ KOPPEN_COLORS = {
     'Dsa': (255, 0, 254),   # Hot-summer humid continental - Magenta
     'Dsb': (198, 0, 199),   # Warm-summer humid continental - Purple
     'Dsc': (150, 50, 149),  # Cold-summer humid continental - Dark purple
-    'Dsd': (150, 100, 149), # Very cold winter humid continental - Very dark purple
-    'Dwa': (171, 177, 255), # Monsoon-influenced hot-summer humid continental - Light blue-purple
-    'Dwb': (90, 119, 219),  # Monsoon-influenced warm-summer humid continental - Medium blue-purple
+    # Very cold winter humid continental - Very dark purple
+    'Dsd': (150, 100, 149),
+    # Monsoon-influenced hot-summer humid continental - Light blue-purple
+    'Dwa': (171, 177, 255),
+    # Monsoon-influenced warm-summer humid continental - Medium blue-purple
+    'Dwb': (90, 119, 219),
     'Dwc': (76, 81, 181),   # Monsoon-influenced subarctic - Dark blue-purple
-    'Dwd': (50, 0, 135),    # Monsoon-influenced extremely cold subarctic - Very dark blue
+    # Monsoon-influenced extremely cold subarctic - Very dark blue
+    'Dwd': (50, 0, 135),
     'Dfa': (0, 255, 255),   # Hot-summer humid continental - Cyan
     'Dfb': (56, 199, 255),  # Warm-summer humid continental - Sky blue
     'Dfc': (0, 126, 125),   # Subarctic - Teal
@@ -89,4 +94,4 @@ KOPPEN_COLORS = {
 
 # Precomputed constants and lookup tables
 OCEAN_COLOR = np.array([76, 102, 178], dtype=np.uint8)
-COLOR_TO_KOPPEN = {tuple(v): k for k, v in KOPPEN_COLORS.items()}
+COLOR_TO_KOPPEN = {tuple(v): k for k, v in KOPPEN_TO_COLOR.items()}
